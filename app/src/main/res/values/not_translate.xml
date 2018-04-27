@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ScrollBehavior" translatable="false">com.sven.sjcalendar.behavior.ScrollBehavior</string>
+    <string name="calendar_month_behavior" translatable="false">com.sven.sjcalendar.behavior.CalendarBehavior</string>
+    <string name="bottom_sheet_behavior" translatable="false">com.sven.sjcalendar.behavior.BottomSheetBehavior</string>
+    <string name="tool_bar_behavior" translatable="false">com.sven.sjcalendar.behavior.ToolbarBehavior</string>
+
+    <string name="header_behavior" translatable="false">com.sven.sjcalendar.behavior.HeaderBehavior</string>
+</resources>

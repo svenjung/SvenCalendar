@@ -1,0 +1,35 @@
+<resources>
+
+    <!-- Declare custom theme attributes that allow changing which styles are
+         used for button bars depending on the API level.
+         ?android:attr/buttonBarStyle is new as of API 11 so this is
+         necessary to support previous API levels. -->
+    <declare-styleable name="ButtonBarContainerTheme">
+        <attr name="metaButtonBarStyle" format="reference" />
+        <attr name="metaButtonBarButtonStyle" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="AnchorBottomSheetBehavior_Layout">
+        <attr name="behavior_anchorOffset" format="dimension" />
+        <attr name="behavior_defaultState" format="enum">
+            <enum name="expanded" value="3" />
+            <enum name="collapsed" value="4" />
+            <enum name="hidden" value="5" />
+            <enum name="anchored" value="6" />
+        </attr>
+    </declare-styleable>
+t
+    <declare-styleable name="CalendarBehavior_Layout">
+        <attr name="layout_dependOn" format="string|reference" />
+    </declare-styleable>
+
+    <declare-styleable name="WeekTitleBar">
+        <attr name="weekTextSize" format="dimension" />
+        <attr name="weekTextColor" format="dimension" />
+    </declare-styleable>
+    
+    <declare-styleable name="HeaderBehavior_Layout">
+        <attr name="behavior_imageId" format="string" />
+        <attr name="behavior_weekTitleId" format="string" />
+    </declare-styleable>
+</resources>
