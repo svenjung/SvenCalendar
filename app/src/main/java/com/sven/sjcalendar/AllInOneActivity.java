@@ -3,27 +3,26 @@ package com.sven.sjcalendar;
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 
+import com.sven.dateview.TimeCalendar;
 import com.sven.dateview.date.DatePickerController;
-import com.sven.dateview.date.MonthView;
 import com.sven.dateview.date.OnDayClickListener;
+import com.sven.sjcalendar.behavior.BottomSheetBehavior;
 import com.sven.sjcalendar.widget.MonthAdapter;
 import com.sven.sjcalendar.widget.MonthViewPager;
 
 
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 
 import timber.log.Timber;
@@ -31,6 +30,8 @@ import timber.log.Timber;
 public class AllInOneActivity extends AppCompatActivity {
 
     private MonthViewPager monthViewPager;
+
+    @BottomSheetBehavior.State int mState = BottomSheetBehavior.STATE_COLLAPSED;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,7 @@ public class AllInOneActivity extends AppCompatActivity {
         Calendar today = Calendar.getInstance();
         viewPager.setCurrentItem((today.get(Calendar.YEAR) - controller.getMinYear()) * 12 + today.get(Calendar.MONTH));
 
+        // 使用LiveData监听日历数据变化,实时更新UI
         EventDayLiveData liveData = new EventDayLiveData(this);
         liveData.observe(this, new Observer<List<Integer>>() {
             @Override
@@ -56,16 +58,11 @@ public class AllInOneActivity extends AppCompatActivity {
             }
         });
 
-        final RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        String[] names = getResources().getStringArray(R.array.query_suggestions);
-        List<String> mList = new ArrayList<>();
-        Collections.addAll(mList, names);
-        recyclerView.setAdapter(new ListAdapter(this, mList));
-        RecyclerView.ItemDecoration itemDecoration =
-                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
-        recyclerView.addItemDecoration(itemDecoration);
+        final NoScrollViewPager listViewPager = findViewById(R.id.listViewPager);
+        listViewPager.setAdapter(new ListPagerAdapter());
+        TimeCalendar time = TimeCalendar.getInstance();
+        listViewPager.setCurrentItem(time.getJulianday() - TimeCalendar.EPOCH_JULIAN_DAY);
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -74,6 +71,54 @@ public class AllInOneActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setTitle("日历");
         }
+//
+//        FrameLayout frameLayout = findViewById(R.id.header);
+//        frameLayout.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+//            @Override
+//            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+//                // Timber.i("@@@@@      Header Layout Changed $$$$$$$$$");
+//            }
+//        });
+
+        final FrameLayout header = findViewById(R.id.header);
+        final int minHeight = getResources().getDimensionPixelOffset(R.dimen.header_collapsed_height);
+        final int maxHeight = getResources().getDimensionPixelOffset(R.dimen.header_expanded_height);
+
+        final BottomSheetBehavior.BottomSheetCallback callback = new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                mState = newState;
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                Timber.i("@@@@@      Header Layout onSlide $$$$$$$$$");
+                int bottom = minHeight + (int) ((1 - slideOffset) * (maxHeight - minHeight));
+                header.setTop(bottom - header.getHeight());
+                header.setBottom(bottom);
+            }
+        };
+
+        header.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                Timber.i("@@@@@      Header Layout Changed $$$$$$$$$");
+                if (mState == BottomSheetBehavior.STATE_EXPANDED) {
+                    header.setTop(minHeight - header.getHeight());
+                    header.setBottom(minHeight);
+                }
+            }
+        });
+
+        listViewPager.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                BottomSheetBehavior behavior = BottomSheetBehavior.from(listViewPager);
+                behavior.setHeaderCallback(callback);
+                //behavior.addBottomSheetCallback(callback);
+                listViewPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
     }
 
     @Override
@@ -97,7 +142,8 @@ public class AllInOneActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.action_today) {
             // set today
-            int currentMonth = (2018 - controller.getMinYear()) * 12 + 3;
+            TimeCalendar today = TimeCalendar.getInstance();
+            int currentMonth = (today.getYear() - controller.getMinYear()) * 12 + today.getMonth();
             monthViewPager.setCurrentItem(currentMonth, true);
         }
         return super.onOptionsItemSelected(item);

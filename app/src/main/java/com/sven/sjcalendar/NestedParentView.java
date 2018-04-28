@@ -59,32 +59,32 @@ public class NestedParentView extends LinearLayout implements NestedScrollingPar
     @Override
     public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
         Timber.tag("NestedParent").d("## onStartNestedScroll ## child : %s, target : %s", child.getClass().getSimpleName(), target.getClass().getSimpleName());
-        Timber.d("onStartNestedScroll, child = %s, target = %s, nestedScrollAxes = %d", child, target, nestedScrollAxes);
+        Timber.i("onStartNestedScroll, child = %s, target = %s, nestedScrollAxes = %d", child, target, nestedScrollAxes);
         return true;
     }
 
     @Override
     public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
-        Timber.d("onNestedScrollAccepted, child = %s, target = %s, nestedScrollAxes = %d", child, target, nestedScrollAxes);
+        Timber.i("onNestedScrollAccepted, child = %s, target = %s, nestedScrollAxes = %d", child, target, nestedScrollAxes);
         parentHelper.onNestedScrollAccepted(child, target, nestedScrollAxes);
     }
 
     @Override
     public void onStopNestedScroll(View target) {
-        Timber.d("onStopNestedScroll");
+        Timber.i("onStopNestedScroll");
         parentHelper.onStopNestedScroll(target);
     }
 
     @Override
     public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
-        Timber.d("onNestedScroll, dxConsumed = %d, dyConsumed = %d, dxUnconsumed = %d, dyUnconsumed = %d", dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
+        Timber.i("onNestedScroll, dxConsumed = %d, dyConsumed = %d, dxUnconsumed = %d, dyUnconsumed = %d", dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed);
     }
 
     @Override
     public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
-        Timber.d("onNestedPreScroll, target view ： %s, Y : %f", target.getClass().getSimpleName(), target.getY());
+        Timber.i("onNestedPreScroll, target view ： %s, Y : %f", target.getClass().getSimpleName(), target.getY());
 
-        Timber.d("                 canScrollVertically : %b, dy : %d", canScrollVertically(1), dy);
+        Timber.i("                 canScrollVertically : %b, dy : %d", canScrollVertically(1), dy);
 
         View childAt0 = getChildAt(0);
         if (childAt0 instanceof Toolbar) {
@@ -94,12 +94,12 @@ public class NestedParentView extends LinearLayout implements NestedScrollingPar
         }
 
         if (dy > 0 && !canScrollVertically(1)) {
-            Timber.d("ParentView在不能下滑的情况下，不可向下移动");
+            Timber.i("ParentView在不能下滑的情况下，不可向下移动");
             return;
         }
 
         if (dy < 0 && !canScrollVertically(-1)) {
-            Timber.d("ParentView在不能上滑的情况下，不可向上移动");
+            Timber.i("ParentView在不能上滑的情况下，不可向上移动");
             return;
         }
 
@@ -126,24 +126,24 @@ public class NestedParentView extends LinearLayout implements NestedScrollingPar
         // 将父View消费掉的放入consumed数组中
         consumed[1] = consumedY;
 
-        Timber.d("onNestedPreScroll, dx = %d, dy = %d, consumed = %s", dx, dy, Arrays.toString(consumed));
+        Timber.i("onNestedPreScroll, dx = %d, dy = %d, consumed = %s", dx, dy, Arrays.toString(consumed));
     }
 
     @Override
     public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
-        Timber.d("onNestedFling, velocityX = %f, velocityY = %f, consumed = %b", velocityX, velocityY, consumed);
+        Timber.i("onNestedFling, velocityX = %f, velocityY = %f, consumed = %b", velocityX, velocityY, consumed);
         return false;
     }
 
     @Override
     public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
-        Timber.d("onNestedPreFling, velocityX = %f, velocityY = %f", velocityX, velocityY);
+        Timber.i("onNestedPreFling, velocityX = %f, velocityY = %f", velocityX, velocityY);
         return false;
     }
 
     @Override
     public int getNestedScrollAxes() {
-        Timber.d("getNestedScrollAxes");
+        Timber.i("getNestedScrollAxes");
         return parentHelper.getNestedScrollAxes();
     }
 }

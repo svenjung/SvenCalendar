@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.sven.dateview.TimeCalendar;
+
 import java.util.List;
 
 /**
@@ -19,6 +21,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.TextHolder> {
 
     private Context mContext;
     private List<String> mList;
+
+    public int mDay = 0;
 
     ListAdapter(Context context, List<String> list) {
         mContext = context;
@@ -35,7 +39,14 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.TextHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull TextHolder holder, int position) {
-        holder.textView.setText(mList.get(position));
+        String item = mList.get(position);
+        if (mDay != 0) {
+            TimeCalendar time = TimeCalendar.getInstance();
+            time.setJulianDay(mDay);
+            time.allDay = true;
+            item = time.format2445() + " ++ " + item;
+        }
+        holder.textView.setText(item);
     }
 
     @Override

@@ -64,10 +64,6 @@ public class CalendarActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
-        //mSelectedTime.set(1970, 0, 1);
-
-        Timber.d("julian day for 1970/1/1 : %d", mSelectedTime.getJulianday());
-
         mWeekTitleBar = findViewById(R.id.weekTitle);
         mMonthViewPager = findViewById(R.id.monthView);
         mWeekViewPager = findViewById(R.id.weekView);
@@ -94,7 +90,6 @@ public class CalendarActivity extends AppCompatActivity {
     private void setTitleDate(int year, int month, int day) {
         mSelectedTime.set(year, month, day);
 
-        Timber.d("weeks since epoch : %d", getWeekPosition(mSelectedTime));
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(year + "年" + (month + 1) + "月" + day + "日");
         }
@@ -108,12 +103,9 @@ public class CalendarActivity extends AppCompatActivity {
             mMonthAdapter.setWeekStart(weekStart);
 
             int weekPosition = getWeekPosition(mSelectedTime);
-            Timber.d("after week start changed, week since epoch : %d, selected day : %s, julianDay = %d", weekPosition, mSelectedTime.format2445(), mSelectedTime.getJulianday());
             mWeekAdapter.setWeekStart(weekStart);
             mWeekViewPager.setCurrentItem(weekPosition);
         }
-
-        Timber.d("current month item : %d", mMonthViewPager.getCurrentItem());
     }
 
     private void backToday() {
@@ -130,7 +122,6 @@ public class CalendarActivity extends AppCompatActivity {
 
     // 计算当前时间从1970年1月1日开始计算的周数
     private int getWeekPosition(TimeCalendar calendar) {
-        Timber.d("@@@ selected time : %s, julian day = %d", calendar.format2445(), calendar.getJulianday());
         return TimeCalendar.getWeeksSinceEpochJulianDay(calendar.getJulianday(),
                 controller.getFirstDayOfWeek());
     }
@@ -186,7 +177,6 @@ public class CalendarActivity extends AppCompatActivity {
 
         @Override
         public int getFirstDayOfWeek() {
-            Timber.d("@@@@ getFirstDayOfWeek : %d", mWeekStart);
             return mWeekStart;
         }
 

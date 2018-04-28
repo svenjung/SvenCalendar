@@ -29,7 +29,9 @@ public class HeaderBehavior<V extends View> extends CoordinatorLayout.Behavior<V
     private int mImageViewId;
     private int mWeekTitleId;
 
-    WeakReference<V> mViewRef = null;
+    private WeakReference<V> mViewRef = null;
+
+    private @BottomSheetBehavior.State int mState = BottomSheetBehavior.STATE_COLLAPSED;
 
     public HeaderBehavior() {
         super();
@@ -45,8 +47,15 @@ public class HeaderBehavior<V extends View> extends CoordinatorLayout.Behavior<V
 
     @Override
     public boolean onLayoutChild(CoordinatorLayout parent, V child, int layoutDirection) {
+        // ViewPager左右滑动后会触发parent的onLayoutChild,此时要记录折叠状态,重新定位child
+        Timber.i("@@@@@@@@@@ onLayoutChild, mState = %d @@@@@@@@@@", mState);
         ensureChild(child);
         mViewRef = new WeakReference<>(child);
+        if (mState == BottomSheetBehavior.STATE_EXPANDED) {
+            setChildTopAndBottom(1);
+        } else if (mState == BottomSheetBehavior.STATE_COLLAPSED) {
+            setChildTopAndBottom(0);
+        }
         return false;
     }
 
@@ -104,22 +113,16 @@ public class HeaderBehavior<V extends View> extends CoordinatorLayout.Behavior<V
 
     @Override
     public void onStateChanged(@NonNull View bottomSheet, int newState) {
-
+        mState = newState;
     }
 
     @Override
     public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-        int expandedHeight = getExpandedHeight();
-        int collapsedHeight = getCollapsedHeight();
-
         // set image alpha
-        int bottom = collapsedHeight + (int) ((1 - slideOffset) * (expandedHeight - collapsedHeight));
         mImageView.setAlpha(1 - getInterpolation(slideOffset));
 
         // offset header
-        V child = mViewRef.get();
-        child.setTop(bottom - expandedHeight);
-        child.setBottom(bottom);
+        setChildTopAndBottom(slideOffset);
     }
 
     private float getInterpolation(float input) {
@@ -130,4 +133,24 @@ public class HeaderBehavior<V extends View> extends CoordinatorLayout.Behavior<V
         return input;
     }
 
+    private void setChildTopAndBottom(float slideOffset) {
+        int expandedHeight = getExpandedHeight();
+        int collapsedHeight = getCollapsedHeight();
+        // set image alpha
+        int bottom = collapsedHeight + (int) ((1 - slideOffset) * (expandedHeight - collapsedHeight));
+
+        V child = mViewRef.get();
+        child.setTop(bottom - expandedHeight);
+        child.setBottom(bottom);
+
+        mImageView.setTop(bottom - mImageView.getHeight());
+        mImageView.setBottom(bottom);
+
+        mWeekTitle.setTop(bottom - mWeekTitle.getHeight());
+        mWeekTitle.setBottom(bottom);
+
+        Timber.d("@@@@@@ Header : top = %d, bottom = %d", child.getTop(), child.getBottom());
+        Timber.d("@@@@@@ Image  : top = %d, bottom = %d", mImageView.getTop(), mImageView.getBottom());
+        Timber.d("@@@@@@ Week   : top = %d, bottom = %d", mWeekTitle.getTop(), mWeekTitle.getBottom());
+    }
 }

@@ -28,7 +28,7 @@ public class ToolbarBehavior extends CoordinatorLayout.Behavior<Toolbar>
 
     @Override
     public boolean onLayoutChild(CoordinatorLayout parent, Toolbar child, int layoutDirection) {
-        Timber.d("ToolbarBehavior onLayoutChild");
+        Timber.i("ToolbarBehavior onLayoutChild");
         parent.onLayoutChild(child, layoutDirection);
         mViewRef = new WeakReference<>(child);
         return true;

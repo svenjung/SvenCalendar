@@ -60,7 +60,7 @@ public class WeekAdapter extends PagerAdapter {
         drawingParams.put(WeekView.VIEW_PARAMS_HEIGHT, 150);
         drawingParams.put(WeekView.VIEW_PARAMS_WEEK_START, mWeekStart);
 
-        Timber.d("draw week, week start = %d", mWeekStart);
+        Timber.i("draw week, week start = %d", mWeekStart);
 
         Calendar day = mController.getSelectedDay();
         int selectedDay = getSelectedDay(day.get(Calendar.YEAR), day.get(Calendar.MONTH), day.get(Calendar.DAY_OF_MONTH));

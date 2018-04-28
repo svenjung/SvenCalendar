@@ -130,7 +130,7 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
             MonthView currentMonth = adapter.getItem(currentPos);
             MonthView nextMonth = adapter.getItem(nextPos);
 
-            Timber.d("current : " + currentPos + ", next : " + nextPos);
+            Timber.i("current : " + currentPos + ", next : " + nextPos);
 
             int translateY = currentMonth.getMonthHeight() - nextMonth.getMonthHeight();
             int offsetY = (int) (translateY * positionOffset);

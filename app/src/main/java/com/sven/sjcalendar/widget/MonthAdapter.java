@@ -29,7 +29,7 @@ public class MonthAdapter extends PagerAdapter {
     private final OnDayLongClickListener dayLongClickListener = new OnDayLongClickListener() {
         @Override
         public boolean onDayLongClick(View view, int year, int month, int day) {
-            Timber.d("onDayLongClick %d/%d/%d", year, (month + 1), day);
+            Timber.i("onDayLongClick %d/%d/%d", year, (month + 1), day);
             return true;
         }
     };

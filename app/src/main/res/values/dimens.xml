@@ -6,4 +6,7 @@
     <dimen name="status_bar_height">22dp</dimen>
 
     <dimen name="week_row_height">52dp</dimen>
+
+    <dimen name="header_collapsed_height">107.5dp</dimen>
+    <dimen name="header_expanded_height">170dp</dimen>
 </resources>

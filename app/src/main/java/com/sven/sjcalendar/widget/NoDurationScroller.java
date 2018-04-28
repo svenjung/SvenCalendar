@@ -1,7 +1,6 @@
 package com.sven.sjcalendar.widget;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
@@ -31,7 +30,6 @@ public class NoDurationScroller extends Scroller {
 
     @Override
     public void startScroll(int startX, int startY, int dx, int dy, int duration) {
-        Log.e("NoScrollViewPager", "start scroll, noDuration = " + mScrollWithOutDuration);
         if (mScrollWithOutDuration) {
             super.startScroll(startX, startY, dx, dy, 0);
         } else {
