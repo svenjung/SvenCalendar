@@ -26,8 +26,6 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
 
     private WeakReference<MonthViewPager> mViewRef;
 
-    private boolean mViewPagerSetup = false;
-
     public CalendarBehavior() {
     }
 
@@ -43,18 +41,17 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
         return false;
     }
 
+    // TODO store the bottom sheet behavior state, offset correct
     @Override
     public boolean onLayoutChild(CoordinatorLayout parent, MonthViewPager child, int layoutDirection) {
         // Let the parent lay it out by default
+        Timber.i("            CalendarBehavior ~~~~~~ onLayoutChild");
         parent.onLayoutChild(child, layoutDirection);
         int dependViewHeight = getDependentViewHeight();
         ViewCompat.offsetTopAndBottom(child, dependViewHeight);
         mViewRef = new WeakReference<>(child);
-        if (!mViewPagerSetup) {
-            child.addOnPageChangeListener(onPageChangeListener);
-            mViewPagerSetup = true;
-        }
-
+        child.removeOnPageChangeListener(onPageChangeListener);
+        child.addOnPageChangeListener(onPageChangeListener);
         return true;
     }
 
@@ -102,6 +99,7 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
     }
 
     // TODO 放在BottomSheetBehavior中实现pageChangeListener,ViewPager滑动过程中禁用RecyclerView的滑动事件
+    // TODO use set top and bottom instead of relayout view pager
     private ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.OnPageChangeListener() {
         // 滑动过程中, position指向左边的item
         @Override
@@ -120,7 +118,7 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
                 return;
             }
 
-            int currentPos = 0, nextPos = 0;
+            int currentPos, nextPos;
             currentPos = position;
             nextPos = position + 1;
 
@@ -130,7 +128,9 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
             MonthView currentMonth = adapter.getItem(currentPos);
             MonthView nextMonth = adapter.getItem(nextPos);
 
-            Timber.i("current : " + currentPos + ", next : " + nextPos);
+            if (currentMonth == null || nextMonth == null) {
+                return;
+            }
 
             int translateY = currentMonth.getMonthHeight() - nextMonth.getMonthHeight();
             int offsetY = (int) (translateY * positionOffset);
@@ -145,12 +145,10 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
 
         @Override
         public void onPageSelected(int position) {
-
         }
 
         @Override
         public void onPageScrollStateChanged(int state) {
-
         }
     };
 

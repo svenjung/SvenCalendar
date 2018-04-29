@@ -227,24 +227,17 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             calendarMinHeight = calendarBehavior.getCollapsedHeight();
             calendarMaxHeight = calendarBehavior.getExpandedHeight();
 
-//            View calendarDependentView = calendarBehavior.getDependentView();
-//            if (calendarDependentView != null) {
-//                headerBehavior = HeaderBehavior.from(calendarDependentView);
-//            }
-//
-//            if (headerBehavior != null) {
-//                toolBarMinHeight = headerBehavior.getCollapsedHeight();
-//                toolBarMaxHeight = headerBehavior.getExpandedHeight();
-//
-//                addBottomSheetCallback(headerBehavior);
-//            }
-            Resources res = parent.getContext().getResources();
-            toolBarMinHeight = res.getDimensionPixelOffset(R.dimen.header_collapsed_height);
-            toolBarMaxHeight = res.getDimensionPixelOffset(R.dimen.header_expanded_height);
-        }
+            View calendarDependentView = calendarBehavior.getDependentView();
+            if (calendarDependentView != null) {
+                headerBehavior = HeaderBehavior.from(calendarDependentView);
+            }
 
-        if (mHeaderCallback != null) {
-            addBottomSheetCallback(mHeaderCallback);
+            if (headerBehavior != null) {
+                toolBarMinHeight = headerBehavior.getCollapsedHeight();
+                toolBarMaxHeight = headerBehavior.getExpandedHeight();
+
+                addBottomSheetCallback(headerBehavior);
+            }
         }
 
         mHeaderExpandedHeight = toolBarMaxHeight;
@@ -257,7 +250,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
     @Override
     public boolean onLayoutChild(CoordinatorLayout parent, V child, int layoutDirection) {
-        Timber.i("           BottomSheetBehavior ~~~~~~ onLayoutChild          ");
+        Timber.i("           BottomSheetBehavior ~~~~~~ onLayoutChild      mState = %d    ", mState);
         // clear original callbacks
         clearBottomSheetCallback();
 
@@ -591,6 +584,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
         }
     }
 
+    // set the view can scroll horizontally
     private void setChildCanScrollHorizontally() {
         View view = mViewRef.get();
         if (view != null && view instanceof NoScrollViewPager) {
@@ -884,7 +878,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
         @Override
         public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            Timber.d("-------- onSlide --------- mState = %d, slideOffset = %f", mState, slideOffset);
             MonthViewPager viewPager = getDependentView();
             if (viewPager == null) {
                 return;

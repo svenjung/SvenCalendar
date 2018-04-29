@@ -50,6 +50,14 @@ public class AllInOneActivity extends AppCompatActivity {
         Calendar today = Calendar.getInstance();
         viewPager.setCurrentItem((today.get(Calendar.YEAR) - controller.getMinYear()) * 12 + today.get(Calendar.MONTH));
 
+        viewPager.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                Timber.i("------ month view pager relayout...");
+            }
+        });
+
         // 使用LiveData监听日历数据变化,实时更新UI
         EventDayLiveData liveData = new EventDayLiveData(this);
         liveData.observe(this, new Observer<List<Integer>>() {
@@ -71,14 +79,6 @@ public class AllInOneActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setTitle("日历");
         }
-//
-//        FrameLayout frameLayout = findViewById(R.id.header);
-//        frameLayout.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-//            @Override
-//            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-//                // Timber.i("@@@@@      Header Layout Changed $$$$$$$$$");
-//            }
-//        });
 
         final FrameLayout header = findViewById(R.id.header);
         final int minHeight = getResources().getDimensionPixelOffset(R.dimen.header_collapsed_height);
@@ -99,26 +99,26 @@ public class AllInOneActivity extends AppCompatActivity {
             }
         };
 
-        header.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                Timber.i("@@@@@      Header Layout Changed $$$$$$$$$");
-                if (mState == BottomSheetBehavior.STATE_EXPANDED) {
-                    header.setTop(minHeight - header.getHeight());
-                    header.setBottom(minHeight);
-                }
-            }
-        });
+//        header.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+//            @Override
+//            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+//                Timber.i("@@@@@      Header Layout Changed $$$$$$$$$");
+//                if (mState == BottomSheetBehavior.STATE_EXPANDED) {
+//                    header.setTop(minHeight - header.getHeight());
+//                    header.setBottom(minHeight);
+//                }
+//            }
+//        });
 
-        listViewPager.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                BottomSheetBehavior behavior = BottomSheetBehavior.from(listViewPager);
-                behavior.setHeaderCallback(callback);
-                //behavior.addBottomSheetCallback(callback);
-                listViewPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-        });
+//        listViewPager.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                BottomSheetBehavior behavior = BottomSheetBehavior.from(listViewPager);
+//                behavior.setHeaderCallback(callback);
+//                //behavior.addBottomSheetCallback(callback);
+//                listViewPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+//            }
+//        });
     }
 
     @Override

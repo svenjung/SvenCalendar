@@ -138,7 +138,7 @@ public class MonthAdapter extends PagerAdapter {
         ViewGroup.LayoutParams lp = container.getLayoutParams();
         if (lp.height != monthView.getMonthHeight()) {
             lp.height = monthView.getMonthHeight();
-            container.setLayoutParams(lp);
+            //container.setLayoutParams(lp);
         }
         super.setPrimaryItem(container, position, object);
     }

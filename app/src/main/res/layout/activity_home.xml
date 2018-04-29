@@ -32,6 +32,7 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:minHeight="@dimen/header_collapsed_height"
+        app:layout_behavior="@string/header_behavior"
         app:behavior_imageId="@+id/headerImage"
         app:behavior_weekTitleId="@+id/headerWeekTitle">
 

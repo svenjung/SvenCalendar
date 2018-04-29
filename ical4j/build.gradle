@@ -38,7 +38,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
-    compile 'org.apache.commons:commons-collections4:4.1'
-    compile 'org.apache.commons:commons-lang3:3.6'
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.11'
+    implementation 'org.apache.commons:commons-collections4:4.1'
+    implementation 'org.apache.commons:commons-lang3:3.6'
+    implementation group: 'commons-codec', name: 'commons-codec', version: '1.11'
 }

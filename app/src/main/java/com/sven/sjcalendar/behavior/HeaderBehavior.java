@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +32,20 @@ public class HeaderBehavior<V extends View> extends CoordinatorLayout.Behavior<V
 
     private @BottomSheetBehavior.State int mState = BottomSheetBehavior.STATE_COLLAPSED;
 
+    private View.OnLayoutChangeListener mChildLayoutListener = new View.OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                   int oldLeft, int oldTop, int oldRight, int oldBottom) {
+            if (mViewRef != null && mViewRef.get() != null) {
+                if (mState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    setChildTopAndBottom(0);
+                } else if (mState == BottomSheetBehavior.STATE_EXPANDED) {
+                    setChildTopAndBottom(1);
+                }
+            }
+        }
+    };
+
     public HeaderBehavior() {
         super();
     }
@@ -48,14 +61,9 @@ public class HeaderBehavior<V extends View> extends CoordinatorLayout.Behavior<V
     @Override
     public boolean onLayoutChild(CoordinatorLayout parent, V child, int layoutDirection) {
         // ViewPager左右滑动后会触发parent的onLayoutChild,此时要记录折叠状态,重新定位child
-        Timber.i("@@@@@@@@@@ onLayoutChild, mState = %d @@@@@@@@@@", mState);
+        child.addOnLayoutChangeListener(mChildLayoutListener);
         ensureChild(child);
         mViewRef = new WeakReference<>(child);
-        if (mState == BottomSheetBehavior.STATE_EXPANDED) {
-            setChildTopAndBottom(1);
-        } else if (mState == BottomSheetBehavior.STATE_COLLAPSED) {
-            setChildTopAndBottom(0);
-        }
         return false;
     }
 
@@ -142,15 +150,5 @@ public class HeaderBehavior<V extends View> extends CoordinatorLayout.Behavior<V
         V child = mViewRef.get();
         child.setTop(bottom - expandedHeight);
         child.setBottom(bottom);
-
-        mImageView.setTop(bottom - mImageView.getHeight());
-        mImageView.setBottom(bottom);
-
-        mWeekTitle.setTop(bottom - mWeekTitle.getHeight());
-        mWeekTitle.setBottom(bottom);
-
-        Timber.d("@@@@@@ Header : top = %d, bottom = %d", child.getTop(), child.getBottom());
-        Timber.d("@@@@@@ Image  : top = %d, bottom = %d", mImageView.getTop(), mImageView.getBottom());
-        Timber.d("@@@@@@ Week   : top = %d, bottom = %d", mWeekTitle.getTop(), mWeekTitle.getBottom());
     }
 }
