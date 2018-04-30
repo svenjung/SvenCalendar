@@ -1,6 +1,7 @@
 package com.sven.sjcalendar.behavior;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
@@ -21,10 +22,13 @@ import timber.log.Timber;
  * Created by Sven.J on 18-4-19.
  */
 public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
-        implements CollapsingView {
+        implements CollapsingView, BottomSheetBehavior.BottomSheetCallback,
+        View.OnLayoutChangeListener{
     private WeakReference<View> dependentView;
 
     private WeakReference<MonthViewPager> mViewRef;
+
+    private @BottomSheetBehavior.State int mState = BottomSheetBehavior.STATE_COLLAPSED;
 
     public CalendarBehavior() {
     }
@@ -47,8 +51,12 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
         // Let the parent lay it out by default
         Timber.i("            CalendarBehavior ~~~~~~ onLayoutChild");
         parent.onLayoutChild(child, layoutDirection);
-        int dependViewHeight = getDependentViewHeight();
-        ViewCompat.offsetTopAndBottom(child, dependViewHeight);
+        child.addOnLayoutChangeListener(this);
+        if (mState == BottomSheetBehavior.STATE_COLLAPSED) {
+            offsetTopAndBottom(child, getLayoutTop(true));
+        } else if (mState == BottomSheetBehavior.STATE_EXPANDED) {
+            offsetTopAndBottom(child, getLayoutTop(false));
+        }
         mViewRef = new WeakReference<>(child);
         child.removeOnPageChangeListener(onPageChangeListener);
         child.addOnPageChangeListener(onPageChangeListener);
@@ -63,6 +71,12 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
         }
     }
 
+    private static void offsetTopAndBottom(View child, int targetTop) {
+        int currentTop = child.getTop();
+        int offsetY = targetTop - currentTop;
+        ViewCompat.offsetTopAndBottom(child, offsetY);
+    }
+
     private int getDependentViewHeight() {
         View dependentView = getDependentView();
         if (dependentView != null && dependentView.getVisibility() == View.VISIBLE) {
@@ -70,6 +84,22 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
         } else {
             return 0;
         }
+    }
+
+    private int getLayoutTop(boolean expanded) {
+        View dependentView = getDependentView();
+        if (dependentView != null) {
+            HeaderBehavior behavior = HeaderBehavior.from(dependentView);
+            if (behavior != null) {
+                if (expanded) {
+                    return behavior.getExpandedHeight();
+                } else {
+                    return behavior.getCollapsedHeight();
+                }
+            }
+        }
+
+        return 0;
     }
 
     @Override
@@ -164,5 +194,29 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
             throw new IllegalArgumentException("The view is not associated with CalendarBehavior");
         }
         return (CalendarBehavior) behavior;
+    }
+
+    @Override
+    public void onStateChanged(@NonNull View bottomSheet, int newState) {
+        mState = newState;
+    }
+
+    @Override
+    public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+    }
+
+    @Override
+    public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                               int oldLeft, int oldTop, int oldRight, int oldBottom) {
+        if (mViewRef == null || mViewRef.get() == null) {
+            return;
+        }
+        View child = mViewRef.get();
+        if (mState == BottomSheetBehavior.STATE_COLLAPSED) {
+            offsetTopAndBottom(child, getLayoutTop(false));
+        } else if (mState == BottomSheetBehavior.STATE_EXPANDED) {
+            offsetTopAndBottom(child, getLayoutTop(true));
+        }
     }
 }

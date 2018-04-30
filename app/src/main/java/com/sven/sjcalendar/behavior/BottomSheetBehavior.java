@@ -238,6 +238,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
                 addBottomSheetCallback(headerBehavior);
             }
+
+            addBottomSheetCallback(calendarBehavior);
         }
 
         mHeaderExpandedHeight = toolBarMaxHeight;
