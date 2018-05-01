@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import com.sven.dateview.TimeCalendar;
 import com.sven.dateview.date.DatePickerController;
+import com.sven.dateview.date.OnDayClickListener;
 import com.sven.dateview.date.SimpleWeekView;
 import com.sven.dateview.date.WeekView;
 
@@ -20,10 +21,12 @@ import timber.log.Timber;
  */
 public class WeekAdapter extends PagerAdapter {
     private final DatePickerController mController;
+    private final OnDayClickListener mOnDayClickListener;
     private int mWeekStart;
 
-    public WeekAdapter(DatePickerController controller) {
+    public WeekAdapter(DatePickerController controller, OnDayClickListener listener) {
         mController = controller;
+        mOnDayClickListener = listener;
 
         mWeekStart = controller.getFirstDayOfWeek();
     }
@@ -68,6 +71,7 @@ public class WeekAdapter extends PagerAdapter {
         drawingParams.put(WeekView.VIEW_PARAMS_SELECTED_DAY, selectedDay);
 
         weekView.setWeekParams(drawingParams);
+        weekView.setOnDayClickListener(mOnDayClickListener);
         container.addView(weekView);
 
         return weekView;
@@ -100,12 +104,12 @@ public class WeekAdapter extends PagerAdapter {
         TimeCalendar calendar = TimeCalendar.getInstance();
         calendar.set(2037, 11, 31);
 
-        int maxJulianDay = calendar.getJulianday();
+        int maxJulianDay = calendar.getJulianDay();
         return TimeCalendar.getWeeksSinceEpochJulianDay(maxJulianDay, mController.getFirstDayOfWeek());
     }
 
     private int getSelectedDay(int year, int month, int day) {
         TimeCalendar calendar = new TimeCalendar(year, month, day);
-        return calendar.getJulianday();
+        return calendar.getJulianDay();
     }
 }

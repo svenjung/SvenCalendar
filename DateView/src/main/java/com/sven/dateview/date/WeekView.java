@@ -14,8 +14,11 @@ import android.support.v4.widget.ExploreByTouchHelper;
 import android.text.format.DateFormat;
 import android.text.format.Time;
 import android.util.AttributeSet;
+import android.view.HapticFeedbackConstants;
 import android.view.MotionEvent;
+import android.view.SoundEffectConstants;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -98,7 +101,7 @@ public abstract class WeekView extends View {
     // affects the padding on the sides of this view
     protected int mEdgePadding = 0;
 
-    protected Paint mMonthNumPaint;
+    protected Paint mWeekNumPaint;
     protected Paint mSelectedCirclePaint;
 
     // The Julian day of the first day displayed by this item
@@ -135,7 +138,7 @@ public abstract class WeekView extends View {
     // The right edge of the selected day
     protected int mSelectedRight = -1;
 
-    private final Calendar mCalendar;
+    private final TimeCalendar mCalendar;
     protected final Calendar mDayLabelCalendar;
     private final WeekViewTouchHelper mTouchHelper;
 
@@ -144,12 +147,26 @@ public abstract class WeekView extends View {
     // Optional listener for handling day click actions
     protected OnDayClickListener mOnDayClickListener;
 
+    // Optional listener for handling day long lick actions
+    protected OnDayLongClickListener mOnDayLongClickListener;
+
     // Whether to prevent setting the accessibility delegate
     private boolean mLockAccessibilityDelegate;
 
     protected int mDayTextColor;
     protected int mTodayNumberColor;
+    protected int mSelectedNumberColor;
     protected int mDisabledDayTextColor;
+
+    protected int mTodayCircleColor;
+    protected int mSelectedCircleColor;
+
+    protected int mPressedDay = -1;
+    private int mLastDay = -1;
+
+    private boolean mHasPerformedLongClick = false;
+    private CheckForLongPress mPendingCheckForLongPress;
+    private CheckForTap mPendingCheckForTap = null;
 
     public WeekView(Context context) {
         this(context, null);
@@ -160,11 +177,15 @@ public abstract class WeekView extends View {
         Resources res = context.getResources();
 
         mDayLabelCalendar = Calendar.getInstance();
-        mCalendar = Calendar.getInstance();
+        mCalendar = TimeCalendar.getInstance();
 
-        mDayTextColor = res.getColor(R.color.date_picker_text_normal);
-        mTodayNumberColor = res.getColor(R.color.blue);
+        mDayTextColor = res.getColor(R.color.black);
+        mTodayNumberColor = res.getColor(R.color.white);
+        mSelectedNumberColor = res.getColor(R.color.neutral_pressed);
         mDisabledDayTextColor = res.getColor(R.color.date_picker_text_disabled);
+
+        mTodayCircleColor = res.getColor(R.color.red);
+        mSelectedCircleColor = res.getColor(R.color.darker_blue);
 
         MINI_DAY_NUMBER_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.day_number_size);
         MONTH_LABEL_TEXT_SIZE = res.getDimensionPixelSize(R.dimen.month_label_size);
@@ -205,6 +226,10 @@ public abstract class WeekView extends View {
         mOnDayClickListener = listener;
     }
 
+    public void setOnDayLongClickListener(OnDayLongClickListener listener) {
+        mOnDayLongClickListener = listener;
+    }
+
     @Override
     public boolean dispatchHoverEvent(MotionEvent event) {
         // First right-of-refusal goes the touch exploration helper.
@@ -216,15 +241,138 @@ public abstract class WeekView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        final int julianDay = getDayFromLocation(event.getX(), event.getY());
+
         switch (event.getAction()) {
-            case MotionEvent.ACTION_UP:
-                final int day = getDayFromLocation(event.getX(), event.getY());
-                if (day >= 0) {
-                    onDayClick(day);
+            case MotionEvent.ACTION_DOWN:
+                mLastDay = julianDay;
+                mHasPerformedLongClick = false;
+                if (julianDay > 0 && !isOutOfRange(julianDay)) {
+                    if (mPendingCheckForTap == null) {
+                        mPendingCheckForTap = new CheckForTap();
+                    }
+                    mPendingCheckForTap.day = julianDay;
+                    postDelayed(mPendingCheckForTap, 25);
                 }
+                break;
+            case MotionEvent.ACTION_UP:
+                if (!mHasPerformedLongClick) {
+                    if (mPressedDay != -1) {
+                        performDayClick(mPressedDay);
+                    }
+                }
+
+                removeTapCallback();
+                removeLongPressCallback();
+                setPressedDay(-1);
+                mHasPerformedLongClick = false;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                // Be lenient about moving outside of touch down day rect
+                if (julianDay != mLastDay) {
+                    setPressedDay(-1);
+                    // Remove any future long press/tap checks
+                    removeTapCallback();
+                    removeLongPressCallback();
+                }
+                break;
+            case MotionEvent.ACTION_CANCEL:
+                setPressedDay(-1);
+                removeTapCallback();
+                removeLongPressCallback();
+                mHasPerformedLongClick = false;
                 break;
         }
         return true;
+    }
+
+    private void performDayClick(int julianDay) {
+        // If the min / max date are set, only process the click if it's a valid selection.
+        if (isOutOfRange(julianDay)) {
+            return;
+        }
+
+        if (mOnDayClickListener != null) {
+            mCalendar.setJulianDay(julianDay);
+            mOnDayClickListener.onDayClick(WeekView.this, mCalendar.getYear(),
+                    mCalendar.getMonth(), mCalendar.getDayOfMonth());
+        }
+
+        setSelectedDay(julianDay);
+
+        playSoundEffect(SoundEffectConstants.CLICK);
+
+        // This is a no-op if accessibility is turned off.
+        mTouchHelper.sendEventForVirtualView(julianDay, AccessibilityEvent.TYPE_VIEW_CLICKED);
+    }
+
+    private void performDayLongClick(int julianDay) {
+        // If the min / max date are set, only process the click if it's a valid selection.
+        if (isOutOfRange(julianDay)) {
+            return;
+        }
+
+        if (mOnDayLongClickListener != null) {
+            mCalendar.setJulianDay(julianDay);
+            mOnDayLongClickListener.onDayLongClick(WeekView.this, mCalendar.getYear(),
+                    mCalendar.getMonth(), mCalendar.getDayOfMonth());
+        }
+
+        performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+
+        // This is a no-op if accessibility is turned off.
+        mTouchHelper.sendEventForVirtualView(julianDay, AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
+    }
+
+    private void setPressedDay(int day) {
+        if (mPressedDay != day) {
+            mPressedDay = day;
+
+            // refresh press state
+            invalidate();
+        }
+    }
+
+    private void removeTapCallback() {
+        if (mPendingCheckForTap != null) {
+            removeCallbacks(mPendingCheckForTap);
+        }
+    }
+
+    private void removeLongPressCallback() {
+        if (mPendingCheckForLongPress != null) {
+            removeCallbacks(mPendingCheckForLongPress);
+        }
+    }
+
+    private void checkForLongClick(int delayOffset, int day) {
+        if (mOnDayLongClickListener != null) {
+            if (mPendingCheckForLongPress == null) {
+                mPendingCheckForLongPress = new CheckForLongPress();
+            }
+
+            mPendingCheckForLongPress.day = day;
+            postDelayed(mPendingCheckForLongPress, ViewConfiguration.getLongPressTimeout() - delayOffset);
+        }
+    }
+
+    private final class CheckForLongPress implements Runnable {
+        public int day;
+
+        @Override
+        public void run() {
+            performDayLongClick(day);
+            mHasPerformedLongClick = true;
+        }
+    }
+
+    private final class CheckForTap implements Runnable {
+        public int day;
+        @Override
+        public void run() {
+            setPressedDay(day);
+            checkForLongClick(ViewConfiguration.getTapTimeout(), day);
+        }
     }
 
     /**
@@ -240,12 +388,12 @@ public abstract class WeekView extends View {
         mSelectedCirclePaint.setStyle(Style.FILL);
         mSelectedCirclePaint.setAlpha(SELECTED_CIRCLE_ALPHA);
 
-        mMonthNumPaint = new Paint();
-        mMonthNumPaint.setAntiAlias(true);
-        mMonthNumPaint.setTextSize(MINI_DAY_NUMBER_TEXT_SIZE);
-        mMonthNumPaint.setStyle(Style.FILL);
-        mMonthNumPaint.setTextAlign(Align.CENTER);
-        mMonthNumPaint.setFakeBoldText(false);
+        mWeekNumPaint = new Paint();
+        mWeekNumPaint.setAntiAlias(true);
+        mWeekNumPaint.setTextSize(MINI_DAY_NUMBER_TEXT_SIZE);
+        mWeekNumPaint.setStyle(Style.FILL);
+        mWeekNumPaint.setTextAlign(Align.CENTER);
+        mWeekNumPaint.setFakeBoldText(false);
     }
 
     @Override
@@ -304,11 +452,11 @@ public abstract class WeekView extends View {
         mNumCells = DEFAULT_NUM_DAYS;
         TimeCalendar time = TimeCalendar.getInstance();
         for (int i = 0; i < mNumCells; i++) {
-            final int julianDay = mFirstJulianDay + 1;
+            final int julianDay = mFirstJulianDay + i;
             time.setJulianDay(julianDay);
             if (today.sameDay(time)) {
                 mHasToday = true;
-                mToday = today.getDayOfMonth();
+                mToday = today.getJulianDay();
             }
         }
         mNumRows = 1;
@@ -425,26 +573,18 @@ public abstract class WeekView extends View {
     }
 
     /**
-     * Calculates the day that the given x position is in, accounting for week
+     * Calculates the julian day that the given x position is in, accounting for week
      * number. Returns the day or -1 if the position wasn't in a day.
      *
      * @param x The x position of the touch event
-     * @return The day number, or -1 if the position wasn't in a day
+     * @return The julian day, or -1 if the position wasn't in a day
      */
     public int getDayFromLocation(float x, float y) {
         final int day = getInternalDayFromLocation(x, y);
-        if (day < 1 || day > mNumCells) {
+        if (day < mFirstJulianDay || day >= mNumCells + mFirstJulianDay) {
             return -1;
         }
         return day;
-    }
-
-    public TimeCalendar getCalendarFromLocation(float x, float y) {
-        final int julianDay = getInternalDayFromLocation(x, y);
-        TimeCalendar calendar = TimeCalendar.getInstance();
-        calendar.setJulianDay(julianDay);
-
-        return calendar;
     }
 
     /**
@@ -465,27 +605,11 @@ public abstract class WeekView extends View {
         return column + mFirstJulianDay;
     }
 
-    /**
-     * Called when the user clicks on a day. Handles callbacks to the
-     * {@link OnDayClickListener} if one is set.
-     * <p/>
-     * If the day is out of the range set by minDate and/or maxDate, this is a no-op.
-     *
-     * @param day The day that was clicked
-     */
-    private void onDayClick(int day) {
-        // If the min / max date are set, only process the click if it's a valid selection.
-        if (isOutOfRange(mYear, mMonth, day)) {
-            return;
-        }
+    protected boolean isOutOfRange(int julianDay) {
+        TimeCalendar calendar = TimeCalendar.getInstance();
+        calendar.setJulianDay(julianDay);
 
-
-        if (mOnDayClickListener != null) {
-            mOnDayClickListener.onDayClick(this, mYear, mMonth, day);
-        }
-
-        // This is a no-op if accessibility is turned off.
-        mTouchHelper.sendEventForVirtualView(day, AccessibilityEvent.TYPE_VIEW_CLICKED);
+        return isOutOfRange(calendar.getYear(), calendar.getMonth(), calendar.getJulianDay());
     }
 
     /**
@@ -591,7 +715,7 @@ public abstract class WeekView extends View {
         private static final String DATE_FORMAT = "dd MMMM yyyy";
 
         private final Rect mTempRect = new Rect();
-        private final Calendar mTempCalendar = Calendar.getInstance();
+        private final TimeCalendar mTempCalendar = TimeCalendar.getInstance();
 
         public WeekViewTouchHelper(View host) {
             super(host);
@@ -623,7 +747,7 @@ public abstract class WeekView extends View {
 
         @Override
         protected void getVisibleVirtualViews(List<Integer> virtualViewIds) {
-            for (int day = 1; day <= mNumCells; day++) {
+            for (int day = mFirstJulianDay; day < mNumCells + mFirstJulianDay; day++) {
                 virtualViewIds.add(day);
             }
         }
@@ -653,7 +777,7 @@ public abstract class WeekView extends View {
                 Bundle arguments) {
             switch (action) {
                 case AccessibilityNodeInfo.ACTION_CLICK:
-                    onDayClick(virtualViewId);
+                    performDayClick(virtualViewId);
                     return true;
             }
 
@@ -668,16 +792,13 @@ public abstract class WeekView extends View {
          */
         protected void getItemBounds(int day, Rect rect) {
             final int offsetX = mEdgePadding;
-            final int offsetY = 0;
             final int cellHeight = mRowHeight;
             final int cellWidth = ((mWidth - (2 * mEdgePadding)) / mNumDays);
-            final int index = ((day - 1) + findDayOffset());
-            final int row = (index / mNumDays);
+            final int index = day - mFirstJulianDay;
             final int column = (index % mNumDays);
             final int x = (offsetX + (column * cellWidth));
-            final int y = (offsetY + (row * cellHeight));
 
-            rect.set(x, y, (x + cellWidth), (y + cellHeight));
+            rect.set(x, 0, (x + cellWidth), cellHeight);
         }
 
         /**
@@ -689,7 +810,7 @@ public abstract class WeekView extends View {
          * @return A description of the time object
          */
         protected CharSequence getItemDescription(int day) {
-            mTempCalendar.set(mYear, mMonth, day);
+            mTempCalendar.setJulianDay(day);
             final CharSequence date = DateFormat.format(DATE_FORMAT,
                     mTempCalendar.getTimeInMillis());
 

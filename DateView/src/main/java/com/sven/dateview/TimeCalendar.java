@@ -98,7 +98,7 @@ public class TimeCalendar extends GregorianCalendar {
         setTimeZone(timezone);
     }
 
-    public int getJulianday() {
+    public int getJulianDay() {
         return getJulianDay(getTimeInMillis(), getGmtOffset());
     }
 

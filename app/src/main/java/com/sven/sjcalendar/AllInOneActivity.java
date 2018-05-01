@@ -11,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
 import com.sven.dateview.TimeCalendar;
@@ -69,7 +68,7 @@ public class AllInOneActivity extends AppCompatActivity {
         final NoScrollViewPager listViewPager = findViewById(R.id.listViewPager);
         listViewPager.setAdapter(new ListPagerAdapter());
         TimeCalendar time = TimeCalendar.getInstance();
-        listViewPager.setCurrentItem(time.getJulianday() - TimeCalendar.EPOCH_JULIAN_DAY);
+        listViewPager.setCurrentItem(time.getJulianDay() - TimeCalendar.EPOCH_JULIAN_DAY);
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);

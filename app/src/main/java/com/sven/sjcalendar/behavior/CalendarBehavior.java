@@ -3,7 +3,6 @@ package com.sven.sjcalendar.behavior;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.View;
@@ -16,7 +15,7 @@ import com.sven.sjcalendar.widget.MonthViewPager;
 
 import java.lang.ref.WeakReference;
 
-import timber.log.Timber;
+import static com.sven.sjcalendar.behavior.ViewUtils.offsetTopAndBottom;
 
 /**
  * Created by Sven.J on 18-4-19.
@@ -45,11 +44,9 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
         return false;
     }
 
-    // TODO store the bottom sheet behavior state, offset correct
     @Override
     public boolean onLayoutChild(CoordinatorLayout parent, MonthViewPager child, int layoutDirection) {
         // Let the parent lay it out by default
-        Timber.i("            CalendarBehavior ~~~~~~ onLayoutChild");
         parent.onLayoutChild(child, layoutDirection);
         child.addOnLayoutChangeListener(this);
         if (mState == BottomSheetBehavior.STATE_COLLAPSED) {
@@ -69,12 +66,6 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
         } else {
             return null;
         }
-    }
-
-    private static void offsetTopAndBottom(View child, int targetTop) {
-        int currentTop = child.getTop();
-        int offsetY = targetTop - currentTop;
-        ViewCompat.offsetTopAndBottom(child, offsetY);
     }
 
     private int getDependentViewHeight() {
@@ -128,8 +119,6 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
         return null;
     }
 
-    // TODO 放在BottomSheetBehavior中实现pageChangeListener,ViewPager滑动过程中禁用RecyclerView的滑动事件
-    // TODO use set top and bottom instead of relayout view pager
     private ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.OnPageChangeListener() {
         // 滑动过程中, position指向左边的item
         @Override

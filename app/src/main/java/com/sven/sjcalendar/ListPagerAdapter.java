@@ -25,7 +25,7 @@ public class ListPagerAdapter extends PagerAdapter {
         TimeCalendar min = new TimeCalendar(1970, 0, 1);
         TimeCalendar max = new TimeCalendar(2037, 11, 31);
 
-        mDayCount = max.getJulianday() - min.getJulianday() + 1;
+        mDayCount = max.getJulianDay() - min.getJulianDay() + 1;
     }
 
     @Override

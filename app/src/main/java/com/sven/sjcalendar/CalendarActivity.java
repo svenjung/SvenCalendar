@@ -16,8 +16,6 @@ import com.sven.sjcalendar.widget.WeekTitleBar;
 import java.util.Calendar;
 import java.util.Random;
 
-import timber.log.Timber;
-
 public class CalendarActivity extends AppCompatActivity {
 
     private WeekTitleBar mWeekTitleBar;
@@ -71,7 +69,7 @@ public class CalendarActivity extends AppCompatActivity {
         mWeekTitleBar.setFirstDayOfWeek(controller.getFirstDayOfWeek());
 
         mMonthAdapter = new MonthAdapter(controller, mOnDayClickListener);
-        mWeekAdapter = new WeekAdapter(controller);
+        mWeekAdapter = new WeekAdapter(controller, mOnDayClickListener);
         mMonthViewPager.setAdapter(mMonthAdapter);
         mWeekViewPager.setAdapter(mWeekAdapter);
 
@@ -122,7 +120,7 @@ public class CalendarActivity extends AppCompatActivity {
 
     // 计算当前时间从1970年1月1日开始计算的周数
     private int getWeekPosition(TimeCalendar calendar) {
-        return TimeCalendar.getWeeksSinceEpochJulianDay(calendar.getJulianday(),
+        return TimeCalendar.getWeeksSinceEpochJulianDay(calendar.getJulianDay(),
                 controller.getFirstDayOfWeek());
     }
 

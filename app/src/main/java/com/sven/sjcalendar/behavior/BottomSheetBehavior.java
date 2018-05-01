@@ -252,7 +252,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
     @Override
     public boolean onLayoutChild(CoordinatorLayout parent, V child, int layoutDirection) {
-        Timber.i("           BottomSheetBehavior ~~~~~~ onLayoutChild      mState = %d    ", mState);
         // clear original callbacks
         clearBottomSheetCallback();
 
@@ -381,7 +380,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     @Override
     public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, V child, View target, int dx,
                                   int dy, int[] consumed) {
-        Timber.d("--------- onStartNestedScroll ----------");
+        Timber.i("--------- onStartNestedScroll ----------, targetView = %s, scrollView = %s", ViewUtils.getViewClass(target), ViewUtils.getViewClass(mNestedScrollingChildRef.get()));
         View scrollingChild = mNestedScrollingChildRef.get();
         if (target != scrollingChild) {
             return;
@@ -893,9 +892,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             int selectedRow = monthView.getSelectedRow();
             int rowHeight = monthView.getRowHeight();
             int maxOffset = rowHeight * (selectedRow - 1) + mHeaderExpandedHeight - mHeaderCollapsedHeight;
-            int newTop = (int) (-slideOffset * maxOffset);
-            viewPager.setTop(newTop + mHeaderExpandedHeight);
-            viewPager.setBottom(newTop + viewPager.getMeasuredHeight() + mHeaderExpandedHeight);
+            int newTop = (int) (-slideOffset * maxOffset) + mHeaderExpandedHeight;
+
+            ViewUtils.offsetTopAndBottom(viewPager, newTop);
         }
     };
 

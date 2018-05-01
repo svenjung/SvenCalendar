@@ -2,10 +2,7 @@ package com.sven.dateview.date;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.text.format.Time;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import com.sven.dateview.TimeCalendar;
 
@@ -26,17 +23,32 @@ public class SimpleWeekView extends WeekView {
     public void drawWeekDay(Canvas canvas, int year, int month, int day, int x, int y,
                             int startX, int stopX, int startY, int stopY) {
         TimeCalendar calendar = new TimeCalendar(year, month, day);
-        int drawJulianDay = calendar.getJulianday();
-        if (mSelectedDay == drawJulianDay) {
+        int drawJulianDay = calendar.getJulianDay();
+        boolean drawCircle = false;
+
+        if (drawJulianDay == mPressedDay || drawJulianDay == mSelectedDay) {
+            mSelectedCirclePaint.setColor(mSelectedCircleColor);
+            drawCircle = true;
+        }
+        if (drawJulianDay == mToday) {
+            mSelectedCirclePaint.setColor(mTodayCircleColor);
+            drawCircle = true;
+        }
+
+        if (drawCircle) {
+            mSelectedCirclePaint.setAlpha(180);
             canvas.drawCircle(x , y - (MINI_DAY_NUMBER_TEXT_SIZE / 3), DAY_SELECTED_CIRCLE_SIZE,
                     mSelectedCirclePaint);
         }
 
-        if (mHasToday && mToday == day) {
-            mMonthNumPaint.setColor(mTodayNumberColor);
+        // If we have a mindate or maxdate, gray out the day number if it's outside the range.
+        if (isOutOfRange(drawJulianDay)) {
+            mWeekNumPaint.setColor(mDisabledDayTextColor);
+        } else if (mHasToday && mToday == drawJulianDay) {
+            mWeekNumPaint.setColor(mTodayNumberColor);
         } else {
-            mMonthNumPaint.setColor(Color.BLACK);
+            mWeekNumPaint.setColor(mDayTextColor);
         }
-        canvas.drawText(String.format("%d", day), x, y, mMonthNumPaint);
+        canvas.drawText(String.format("%d", day), x, y, mWeekNumPaint);
     }
 }
