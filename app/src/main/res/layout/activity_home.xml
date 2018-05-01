@@ -5,18 +5,18 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="false"
     android:splitMotionEvents="false">
-    <!-- 禁用CoordinatorLayout多点触摸,android:fitsSystemWindows="false",防止
+    <!-- 禁用CoordinatorLayout多点触摸,android:splitMotionEvents="false",防止
      在ViewPager滑动过程中其它的View也能滑动-->
 
     <com.sven.sjcalendar.widget.MonthViewPager
-        android:id="@+id/calendarPager"
+        android:id="@+id/monthPager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_behavior="@string/calendar_month_behavior"
         app:layout_dependOn="@+id/header" />
 
     <com.sven.sjcalendar.NoScrollViewPager
-        android:id="@+id/listViewPager"
+        android:id="@+id/listPager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="fill_vertical"
@@ -32,9 +32,9 @@
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:minHeight="@dimen/header_collapsed_height"
-        app:layout_behavior="@string/header_behavior"
         app:behavior_imageId="@+id/headerImage"
-        app:behavior_weekTitleId="@+id/headerWeekTitle">
+        app:behavior_weekTitleId="@+id/headerWeekTitle"
+        app:layout_behavior="@string/header_behavior">
 
         <ImageView
             android:id="@+id/headerImage"
@@ -50,14 +50,21 @@
             android:layout_gravity="bottom" />
     </FrameLayout>
 
+    <!-- Fixed location and size -->
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:gravity="center_vertical"
-        android:minHeight="?attr/actionBarSize"
-        android:paddingTop="@dimen/status_bar_height"
-        app:contentInsetStart="0dp" />
+        android:layout_marginTop="@dimen/status_bar_height"
+        android:gravity="center_vertical" />
+
+    <!-- Fixed location and size -->
+    <com.sven.sjcalendar.NoScrollViewPager
+        android:id="@+id/weekPager"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/week_row_height"
+        android:layout_gravity="top"
+        android:layout_marginTop="@dimen/header_collapsed_height" />
 
 </android.support.design.widget.CoordinatorLayout>

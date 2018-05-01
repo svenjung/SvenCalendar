@@ -6,7 +6,7 @@
     android:fitsSystemWindows="false">
 
     <com.sven.sjcalendar.widget.MonthViewPager
-        android:id="@+id/calendarPager"
+        android:id="@+id/monthPager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_behavior="@string/calendar_month_behavior" />
@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="fill_vertical"
         app:layout_behavior="@string/bottom_sheet_behavior"
-        app:layout_dependOn="@+id/calendarPager" />
+        app:layout_dependOn="@+id/monthPager" />
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"

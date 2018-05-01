@@ -10,6 +10,7 @@ import com.sven.dateview.date.DatePickerController;
 import com.sven.dateview.date.OnDayClickListener;
 import com.sven.dateview.date.SimpleWeekView;
 import com.sven.dateview.date.WeekView;
+import com.sven.sjcalendar.R;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -57,10 +58,11 @@ public class WeekAdapter extends PagerAdapter {
     @Override
     public View instantiateItem(ViewGroup container, int position) {
         Context context = container.getContext();
+        int rowHeight = context.getResources().getDimensionPixelOffset(R.dimen.week_row_height);
         SimpleWeekView weekView = new SimpleWeekView(context);
         HashMap<String, Integer> drawingParams = new HashMap<>();
         drawingParams.put(WeekView.VIEW_PARAMS_WEEK_SINCE_EPOCH, position);
-        drawingParams.put(WeekView.VIEW_PARAMS_HEIGHT, 150);
+        drawingParams.put(WeekView.VIEW_PARAMS_HEIGHT, rowHeight);
         drawingParams.put(WeekView.VIEW_PARAMS_WEEK_START, mWeekStart);
 
         Timber.i("draw week, week start = %d", mWeekStart);

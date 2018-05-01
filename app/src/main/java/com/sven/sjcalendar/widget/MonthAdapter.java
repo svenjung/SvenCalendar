@@ -12,6 +12,7 @@ import com.sven.dateview.date.MonthView;
 import com.sven.dateview.date.OnDayClickListener;
 import com.sven.dateview.date.OnDayLongClickListener;
 import com.sven.dateview.date.SimpleMonthView;
+import com.sven.sjcalendar.R;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -97,6 +98,7 @@ public class MonthAdapter extends PagerAdapter {
     @Override
     public View instantiateItem(ViewGroup container, int position) {
         Context context = container.getContext();
+        int rowHeight = context.getResources().getDimensionPixelOffset(R.dimen.week_row_height);
         SimpleMonthView monthView;
         if (mRecycledViews.size() > 0) {
             monthView = mRecycledViews.removeFirst();
@@ -115,7 +117,7 @@ public class MonthAdapter extends PagerAdapter {
             selectedDay = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
         }
 
-        drawingParams.put(MonthView.VIEW_PARAMS_HEIGHT, 150);
+        drawingParams.put(MonthView.VIEW_PARAMS_HEIGHT, rowHeight);
         drawingParams.put(MonthView.VIEW_PARAMS_SELECTED_DAY, selectedDay);
         drawingParams.put(MonthView.VIEW_PARAMS_YEAR, year);
         drawingParams.put(MonthView.VIEW_PARAMS_MONTH, month);

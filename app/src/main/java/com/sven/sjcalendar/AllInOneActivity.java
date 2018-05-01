@@ -3,7 +3,6 @@ package com.sven.sjcalendar;
 import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -11,7 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.FrameLayout;
 
 import com.sven.dateview.TimeCalendar;
 import com.sven.dateview.date.DatePickerController;
@@ -37,7 +35,7 @@ public class AllInOneActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        final MonthViewPager viewPager = findViewById(R.id.calendarPager);
+        final MonthViewPager viewPager = findViewById(R.id.monthPager);
         monthViewPager = viewPager;
         OnDayClickListener dayClickListener = new OnDayClickListener() {
             @Override
@@ -49,14 +47,6 @@ public class AllInOneActivity extends AppCompatActivity {
         Calendar today = Calendar.getInstance();
         viewPager.setCurrentItem((today.get(Calendar.YEAR) - controller.getMinYear()) * 12 + today.get(Calendar.MONTH));
 
-        viewPager.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                Timber.i("------ month view pager relayout...");
-            }
-        });
-
         // 使用LiveData监听日历数据变化,实时更新UI
         EventDayLiveData liveData = new EventDayLiveData(this);
         liveData.observe(this, new Observer<List<Integer>>() {
@@ -65,7 +55,7 @@ public class AllInOneActivity extends AppCompatActivity {
             }
         });
 
-        final NoScrollViewPager listViewPager = findViewById(R.id.listViewPager);
+        final NoScrollViewPager listViewPager = findViewById(R.id.listPager);
         listViewPager.setAdapter(new ListPagerAdapter());
         TimeCalendar time = TimeCalendar.getInstance();
         listViewPager.setCurrentItem(time.getJulianDay() - TimeCalendar.EPOCH_JULIAN_DAY);
@@ -78,46 +68,14 @@ public class AllInOneActivity extends AppCompatActivity {
         if (actionBar != null) {
             actionBar.setTitle("日历");
         }
+    }
 
-        final FrameLayout header = findViewById(R.id.header);
-        final int minHeight = getResources().getDimensionPixelOffset(R.dimen.header_collapsed_height);
-        final int maxHeight = getResources().getDimensionPixelOffset(R.dimen.header_expanded_height);
+    private int getMonthPosition(TimeCalendar calendar) {
+        return 0;
+    }
 
-        final BottomSheetBehavior.BottomSheetCallback callback = new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                mState = newState;
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                Timber.i("@@@@@      Header Layout onSlide $$$$$$$$$");
-                int bottom = minHeight + (int) ((1 - slideOffset) * (maxHeight - minHeight));
-                header.setTop(bottom - header.getHeight());
-                header.setBottom(bottom);
-            }
-        };
-
-//        header.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-//            @Override
-//            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-//                Timber.i("@@@@@      Header Layout Changed $$$$$$$$$");
-//                if (mState == BottomSheetBehavior.STATE_EXPANDED) {
-//                    header.setTop(minHeight - header.getHeight());
-//                    header.setBottom(minHeight);
-//                }
-//            }
-//        });
-
-//        listViewPager.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                BottomSheetBehavior behavior = BottomSheetBehavior.from(listViewPager);
-//                behavior.setHeaderCallback(callback);
-//                //behavior.addBottomSheetCallback(callback);
-//                listViewPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-//            }
-//        });
+    private int getWeekPosition(TimeCalendar calendar, int weekStart) {
+        return 0;
     }
 
     @Override
