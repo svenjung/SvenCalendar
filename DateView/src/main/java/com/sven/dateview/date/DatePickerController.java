@@ -16,18 +16,14 @@
 
 package com.sven.dateview.date;
 
-import java.util.Calendar;
+import com.sven.dateview.TimeCalendar;
 
 /**
  * Controller class to communicate among the various components of the date picker dialog.
  */
 public interface DatePickerController {
 
-    void onYearSelected(int year);
-
-    void onDayOfMonthSelected(int year, int month, int day);
-
-    Calendar getSelectedDay();
+    TimeCalendar getSelectedDay();
 
     int getFirstDayOfWeek();
 
@@ -35,9 +31,8 @@ public interface DatePickerController {
 
     int getMaxYear();
 
-    Calendar getMinDate();
+    TimeCalendar getMinDate();
 
-    Calendar getMaxDate();
+    TimeCalendar getMaxDate();
 
-    void tryVibrate();
 }

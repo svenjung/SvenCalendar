@@ -2,7 +2,6 @@
 package com.sven.dateview;
 
 import android.text.format.DateUtils;
-import android.util.Log;
 
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -100,6 +99,10 @@ public class TimeCalendar extends GregorianCalendar {
 
     public int getJulianDay() {
         return getJulianDay(getTimeInMillis(), getGmtOffset());
+    }
+
+    public int getDaysSinceEpoch() {
+        return getJulianDay() - EPOCH_JULIAN_DAY;
     }
 
     public long getGmtOffset() {
@@ -643,7 +646,7 @@ public class TimeCalendar extends GregorianCalendar {
 
     public boolean sameDay(TimeCalendar o) {
         return getYear() == o.getYear() && getMonth() == o.getMonth()
-                && getDayOfMonth() == o.getDayOfMonth();
+                && getDay() == o.getDay();
     }
 
     public static class TimeFormatException extends RuntimeException {
@@ -672,7 +675,7 @@ public class TimeCalendar extends GregorianCalendar {
         return get(MONTH);
     }
 
-    public int getDayOfMonth() {
+    public int getDay() {
         return get(DAY_OF_MONTH);
     }
 

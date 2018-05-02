@@ -1,7 +1,9 @@
 package com.sven.sjcalendar.behavior;
 
 import android.support.annotation.NonNull;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPager;
 import android.view.View;
 
 public class ViewUtils {

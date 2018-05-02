@@ -295,10 +295,10 @@ public abstract class WeekView extends View {
         if (mOnDayClickListener != null) {
             mCalendar.setJulianDay(julianDay);
             mOnDayClickListener.onDayClick(WeekView.this, mCalendar.getYear(),
-                    mCalendar.getMonth(), mCalendar.getDayOfMonth());
+                    mCalendar.getMonth(), mCalendar.getDay());
         }
 
-        setSelectedDay(julianDay);
+        setSelectedDay(julianDay, false);
 
         playSoundEffect(SoundEffectConstants.CLICK);
 
@@ -315,7 +315,7 @@ public abstract class WeekView extends View {
         if (mOnDayLongClickListener != null) {
             mCalendar.setJulianDay(julianDay);
             mOnDayLongClickListener.onDayLongClick(WeekView.this, mCalendar.getYear(),
-                    mCalendar.getMonth(), mCalendar.getDayOfMonth());
+                    mCalendar.getMonth(), mCalendar.getDay());
         }
 
         performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
@@ -465,8 +465,19 @@ public abstract class WeekView extends View {
         mTouchHelper.invalidateRoot();
     }
 
+    // 外部通过API设置选中日期的才需要重新绘制View
     public void setSelectedDay(int day) {
-        mSelectedDay = day;
+        setSelectedDay(day, true);
+    }
+
+    private void setSelectedDay(int day, boolean invalidate) {
+        if (mSelectedDay != day) {
+            mSelectedDay = day;
+
+            if (invalidate) {
+                invalidate();
+            }
+        }
     }
 
     public int getSelectedDay() {
@@ -541,7 +552,7 @@ public abstract class WeekView extends View {
             final int startY = (int)(y - yRelativeToDay);
             final int stopY = (int)(startY + mRowHeight);
             calendar.setJulianDay(julianDay);
-            drawWeekDay(canvas, calendar.getYear(), calendar.getMonth(), calendar.getDayOfMonth(),
+            drawWeekDay(canvas, calendar.getYear(), calendar.getMonth(), calendar.getDay(),
                     x, y, startX, stopX, startY, stopY);
         }
     }

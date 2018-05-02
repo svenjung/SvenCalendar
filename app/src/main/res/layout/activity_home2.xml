@@ -8,14 +8,15 @@
     <!-- 禁用CoordinatorLayout多点触摸,android:splitMotionEvents="false",防止
      在ViewPager滑动过程中其它的View也能滑动-->
 
-    <com.sven.sjcalendar.widget.MonthViewPager
+    <com.sven.sjcalendar.widget.NoScrollViewPager
         android:id="@+id/monthPager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/white"
         app:layout_behavior="@string/calendar_month_behavior"
         app:layout_dependOn="@+id/header" />
 
-    <com.sven.sjcalendar.NoScrollViewPager
+    <com.sven.sjcalendar.widget.NoScrollViewPager
         android:id="@+id/listPager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -60,11 +61,13 @@
         android:gravity="center_vertical" />
 
     <!-- Fixed location and size -->
-    <com.sven.sjcalendar.NoScrollViewPager
+    <com.sven.sjcalendar.widget.NoScrollViewPager
         android:id="@+id/weekPager"
         android:layout_width="match_parent"
         android:layout_height="@dimen/week_row_height"
         android:layout_gravity="top"
-        android:layout_marginTop="@dimen/header_collapsed_height" />
+        android:layout_marginTop="@dimen/header_collapsed_height"
+        android:background="@color/white"
+        android:visibility="invisible" />
 
 </android.support.design.widget.CoordinatorLayout>

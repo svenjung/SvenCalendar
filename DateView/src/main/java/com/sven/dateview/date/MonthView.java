@@ -298,7 +298,7 @@ public abstract class MonthView extends View {
             mOnDayClickListener.onDayClick(this, mYear, mMonth, day);
         }
 
-        setSelectedDay(day);
+        setSelectedDay(day, false);
 
         playSoundEffect(SoundEffectConstants.CLICK);
 
@@ -460,15 +460,30 @@ public abstract class MonthView extends View {
         mTouchHelper.invalidateRoot();
     }
 
+    // 外部通过API设置选中日期的才需要重新绘制View
     public void setSelectedDay(int day) {
+        setSelectedDay(day, true);
+    }
+
+    private void setSelectedDay(int day, boolean invalidate) {
         if (mSelectedDay != day) {
             mSelectedDay = day;
-            invalidate();
+
+            if (invalidate) {
+                invalidate();
+            }
         }
     }
 
     public int getSelectedDay() {
         return mSelectedDay;
+    }
+
+    public void setWeekStart(int weekStart) {
+        if (mWeekStart != weekStart) {
+            mWeekStart = weekStart;
+            invalidate();
+        }
     }
 
     public void reuse() {
@@ -491,7 +506,7 @@ public abstract class MonthView extends View {
     private boolean sameDay(int day, TimeCalendar today) {
         return mYear == today.getYear() &&
                 mMonth == today.getMonth() &&
-                day == today.getDayOfMonth();
+                day == today.getDay();
     }
 
     public int getRowHeight() {

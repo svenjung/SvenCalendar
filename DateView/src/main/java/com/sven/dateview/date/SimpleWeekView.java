@@ -6,6 +6,8 @@ import android.util.AttributeSet;
 
 import com.sven.dateview.TimeCalendar;
 
+import java.util.Locale;
+
 /**
  * Created by Sven.J on 18-4-25.
  */
@@ -37,7 +39,7 @@ public class SimpleWeekView extends WeekView {
 
         if (drawCircle) {
             mSelectedCirclePaint.setAlpha(180);
-            canvas.drawCircle(x , y - (MINI_DAY_NUMBER_TEXT_SIZE / 3), DAY_SELECTED_CIRCLE_SIZE,
+            canvas.drawCircle(x, y - (MINI_DAY_NUMBER_TEXT_SIZE / 3), DAY_SELECTED_CIRCLE_SIZE,
                     mSelectedCirclePaint);
         }
 
@@ -49,6 +51,6 @@ public class SimpleWeekView extends WeekView {
         } else {
             mWeekNumPaint.setColor(mDayTextColor);
         }
-        canvas.drawText(String.format("%d", day), x, y, mWeekNumPaint);
+        canvas.drawText(String.format(Locale.getDefault(), "%d", day), x, y, mWeekNumPaint);
     }
 }

@@ -19,10 +19,10 @@ package com.sven.dateview.date;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
-import android.view.View;
+
+import java.util.Locale;
 
 public class SimpleMonthView extends MonthView {
-    private static final String TAG = "SimpleMonthView";
 
     public SimpleMonthView(Context context) {
         this(context, null);
@@ -30,16 +30,6 @@ public class SimpleMonthView extends MonthView {
 
     public SimpleMonthView(Context context, AttributeSet attr) {
         super(context, attr);
-
-        addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
-            @Override
-            public void onViewAttachedToWindow(View v) {
-            }
-
-            @Override
-            public void onViewDetachedFromWindow(View v) {
-            }
-        });
     }
 
     @Override
@@ -70,7 +60,7 @@ public class SimpleMonthView extends MonthView {
             mMonthNumPaint.setColor(mDayTextColor);
         }
 
-        canvas.drawText(String.format("%d", day), x, y, mMonthNumPaint);
+        canvas.drawText(String.format(Locale.getDefault(), "%d", day), x, y, mMonthNumPaint);
     }
 
 }

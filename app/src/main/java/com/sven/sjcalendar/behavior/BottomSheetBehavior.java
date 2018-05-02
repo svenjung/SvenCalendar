@@ -17,7 +17,6 @@
 package com.sven.sjcalendar.behavior;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IntDef;
@@ -37,18 +36,15 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
-import com.sven.dateview.date.MonthView;
-import com.sven.sjcalendar.NoScrollViewPager;
+import com.sven.dateview.date.SimpleMonthView;
 import com.sven.sjcalendar.R;
-import com.sven.sjcalendar.widget.MonthViewPager;
+import com.sven.sjcalendar.widget.NoScrollViewPager;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-
-import timber.log.Timber;
 
 
 /**
@@ -153,16 +149,10 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
     private boolean mAllowUserDragging = true;
 
-    private WeakReference<MonthViewPager> dependentView;
+    private WeakReference<NoScrollViewPager> dependentView;
 
     private int mHeaderExpandedHeight = 0;
     private int mHeaderCollapsedHeight = 0;
-
-    private BottomSheetCallback mHeaderCallback;
-
-    public void setHeaderCallback(BottomSheetCallback callback) {
-        mHeaderCallback = callback;
-    }
 
     /**
      * Default constructor for instantiating BottomSheetBehaviors.
@@ -202,8 +192,8 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
     @Override
     public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
-        if (dependency != null && dependency instanceof MonthViewPager) {
-            dependentView = new WeakReference<>((MonthViewPager) dependency);
+        if (dependency != null && dependency.getId() == R.id.monthPager) {
+            dependentView = new WeakReference<>((NoScrollViewPager) dependency);
             // set callback
             return true;
         }
@@ -211,7 +201,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     }
 
     private void layoutChild(CoordinatorLayout parent, V child) {
-        MonthViewPager viewPager = getDependentView();
+        ViewPager viewPager = getDependentView();
         CalendarBehavior calendarBehavior = null;
         HeaderBehavior headerBehavior = null;
         if (viewPager != null) {
@@ -226,7 +216,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
         if (calendarBehavior != null) {
             calendarMinHeight = calendarBehavior.getCollapsedHeight();
             calendarMaxHeight = calendarBehavior.getExpandedHeight();
-
             View calendarDependentView = calendarBehavior.getDependentView();
             if (calendarDependentView != null) {
                 headerBehavior = HeaderBehavior.from(calendarDependentView);
@@ -252,9 +241,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
     @Override
     public boolean onLayoutChild(CoordinatorLayout parent, V child, int layoutDirection) {
-        // clear original callbacks
-        clearBottomSheetCallback();
-
         // First let the parent lay it out
         if (mState != STATE_DRAGGING && mState != STATE_SETTLING) {
             parent.onLayoutChild(child, layoutDirection);
@@ -380,7 +366,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     @Override
     public void onNestedPreScroll(CoordinatorLayout coordinatorLayout, V child, View target, int dx,
                                   int dy, int[] consumed) {
-        Timber.i("--------- onStartNestedScroll ----------, targetView = %s, scrollView = %s", ViewUtils.getViewClass(target), ViewUtils.getViewClass(mNestedScrollingChildRef.get()));
         View scrollingChild = mNestedScrollingChildRef.get();
         if (target != scrollingChild) {
             return;
@@ -498,7 +483,9 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             mCallbacks = new ArrayList<>();
         }
 
-        mCallbacks.add(callback);
+        if (!mCallbacks.contains(callback)) {
+            mCallbacks.add(callback);
+        }
     }
 
     public void removeBottomSheetCallback(BottomSheetCallback callback) {
@@ -546,7 +533,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
         }
     }
 
-    private MonthViewPager getDependentView() {
+    private NoScrollViewPager getDependentView() {
         if (dependentView != null) {
             return dependentView.get();
         } else {
@@ -869,7 +856,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
     private BottomSheetCallback mCalendarCallback = new BottomSheetCallback() {
         @Override
         public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            MonthViewPager viewPager = getDependentView();
+            NoScrollViewPager viewPager = getDependentView();
             if (viewPager == null) {
                 return;
             }
@@ -879,16 +866,17 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
         @Override
         public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            MonthViewPager viewPager = getDependentView();
+            NoScrollViewPager viewPager = getDependentView();
             if (viewPager == null) {
                 return;
             }
 
-            MonthView monthView = MonthViewPager.getCurrentView(viewPager);
-            if (monthView == null) {
+            View view = ViewPagerUtils.getCurrentView(viewPager);
+            if (view == null || !(view instanceof SimpleMonthView)) {
                 return;
             }
 
+            SimpleMonthView monthView = (SimpleMonthView) view;
             int selectedRow = monthView.getSelectedRow();
             int rowHeight = monthView.getRowHeight();
             int maxOffset = rowHeight * (selectedRow - 1) + mHeaderExpandedHeight - mHeaderCollapsedHeight;
@@ -897,6 +885,19 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             ViewUtils.offsetTopAndBottom(viewPager, newTop);
         }
     };
+
+    public static class SimpleBottomSheetCallback implements BottomSheetCallback {
+
+        @Override
+        public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            // This space for rent
+        }
+
+        @Override
+        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+            // This space for rent
+        }
+    }
 
     /**
      * A utility function to get the {@link BottomSheetBehavior} associated with the {@code view}.

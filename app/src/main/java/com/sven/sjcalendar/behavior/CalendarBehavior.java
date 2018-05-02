@@ -3,15 +3,16 @@ package com.sven.sjcalendar.behavior;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.sven.dateview.date.MonthView;
+import com.sven.dateview.date.SimpleMonthView;
 import com.sven.sjcalendar.R;
-import com.sven.sjcalendar.widget.MonthAdapter;
-import com.sven.sjcalendar.widget.MonthViewPager;
+import com.sven.sjcalendar.widget.MonthPagerAdapter;
 
 import java.lang.ref.WeakReference;
 
@@ -20,12 +21,12 @@ import static com.sven.sjcalendar.behavior.ViewUtils.offsetTopAndBottom;
 /**
  * Created by Sven.J on 18-4-19.
  */
-public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
+public class CalendarBehavior<V extends View> extends CoordinatorLayout.Behavior<V>
         implements CollapsingView, BottomSheetBehavior.BottomSheetCallback,
         View.OnLayoutChangeListener{
     private WeakReference<View> dependentView;
 
-    private WeakReference<MonthViewPager> mViewRef;
+    private WeakReference<V> mViewRef;
 
     private @BottomSheetBehavior.State int mState = BottomSheetBehavior.STATE_COLLAPSED;
 
@@ -37,7 +38,7 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
     }
 
     @Override
-    public boolean layoutDependsOn(CoordinatorLayout parent, MonthViewPager child, View dependency) {
+    public boolean layoutDependsOn(CoordinatorLayout parent, V child, View dependency) {
         if (dependency != null && dependency.getId() == R.id.header) {
             dependentView = new WeakReference<>(dependency);
         }
@@ -45,7 +46,7 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
     }
 
     @Override
-    public boolean onLayoutChild(CoordinatorLayout parent, MonthViewPager child, int layoutDirection) {
+    public boolean onLayoutChild(CoordinatorLayout parent, V child, int layoutDirection) {
         // Let the parent lay it out by default
         parent.onLayoutChild(child, layoutDirection);
         child.addOnLayoutChangeListener(this);
@@ -55,8 +56,11 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
             offsetTopAndBottom(child, getLayoutTop(false));
         }
         mViewRef = new WeakReference<>(child);
-        child.removeOnPageChangeListener(onPageChangeListener);
-        child.addOnPageChangeListener(onPageChangeListener);
+        if (child instanceof ViewPager) {
+            ViewPager viewPager = (ViewPager) child;
+            viewPager.removeOnPageChangeListener(onPageChangeListener);
+            viewPager.addOnPageChangeListener(onPageChangeListener);
+        }
         return true;
     }
 
@@ -65,15 +69,6 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
             return dependentView.get();
         } else {
             return null;
-        }
-    }
-
-    private int getDependentViewHeight() {
-        View dependentView = getDependentView();
-        if (dependentView != null && dependentView.getVisibility() == View.VISIBLE) {
-            return dependentView.getMeasuredHeight();
-        } else {
-            return 0;
         }
     }
 
@@ -96,30 +91,49 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
     @Override
     public int getExpandedHeight() {
         // 左右滑动过程中，要获取ViewPager的高度
-        if (mViewRef != null && mViewRef.get() != null) {
-            return mViewRef.get().getHeight();
+        SimpleMonthView monthView = getCurrentMonth();
+        if (monthView != null) {
+            return monthView.getMonthHeight();
+        } else {
+            return 0;
         }
-        MonthView monthView = getCurrentView();
-        return monthView == null ? 0 : monthView.getHeight();
     }
 
     @Override
     public int getCollapsedHeight() {
-        MonthView monthView = getCurrentView();
-        return monthView == null ? 0 : monthView.getRowHeight();
+        SimpleMonthView monthView = getCurrentMonth();
+        if (monthView != null) {
+            return monthView.getRowHeight();
+        } else {
+            return 0;
+        }
     }
 
-    private MonthView getCurrentView() {
-        if (mViewRef != null && mViewRef.get() != null && mViewRef.get().getAdapter() != null) {
-            MonthViewPager viewPager = mViewRef.get();
-            MonthAdapter adapter = viewPager.getAdapter();
-            return adapter.getItem(viewPager.getCurrentItem());
+    private SimpleMonthView getCurrentMonth() {
+        if (mViewRef == null || mViewRef.get() == null) {
+            return null;
         }
 
-        return null;
+        V child = mViewRef.get();
+        if (child instanceof ViewPager) {
+            ViewPager viewPager = (ViewPager) mViewRef.get();
+            PagerAdapter pagerAdapter = ((ViewPager) mViewRef.get()).getAdapter();
+            if (!(pagerAdapter instanceof MonthPagerAdapter)) {
+                return null;
+            }
+
+            MonthPagerAdapter adapter = (MonthPagerAdapter) pagerAdapter;
+            if (adapter == null) {
+                return null;
+            }
+
+            return adapter.getItem(viewPager.getCurrentItem());
+        } else {
+            return null;
+        }
     }
 
-    private ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.OnPageChangeListener() {
+    private ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
         // 滑动过程中, position指向左边的item
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -131,8 +145,17 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
                 return;
             }
 
-            MonthViewPager viewPager = mViewRef.get();
-            MonthAdapter adapter = viewPager.getAdapter();
+            V child = mViewRef.get();
+            if (!(child instanceof ViewPager)) {
+                return;
+            }
+
+            PagerAdapter pagerAdapter = ((ViewPager) mViewRef.get()).getAdapter();
+            if (!(pagerAdapter instanceof MonthPagerAdapter)) {
+                return;
+            }
+
+            MonthPagerAdapter adapter = (MonthPagerAdapter) pagerAdapter;
             if (adapter == null) {
                 return;
             }
@@ -157,23 +180,15 @@ public class CalendarBehavior extends CoordinatorLayout.Behavior<MonthViewPager>
                 return;
             }
 
-            ViewGroup.LayoutParams lp = viewPager.getLayoutParams();
+            ViewGroup.LayoutParams lp = child.getLayoutParams();
             lp.height = currentMonth.getMeasuredHeight() - offsetY;
-            viewPager.setLayoutParams(lp);
-        }
-
-        @Override
-        public void onPageSelected(int position) {
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
+            child.setLayoutParams(lp);
         }
     };
 
     @SuppressWarnings("unchecked")
-    public static CalendarBehavior from(MonthViewPager monthViewPager) {
-        ViewGroup.LayoutParams params = monthViewPager.getLayoutParams();
+    public static <V extends View> CalendarBehavior from(V view) {
+        ViewGroup.LayoutParams params = view.getLayoutParams();
         if (!(params instanceof CoordinatorLayout.LayoutParams)) {
             throw new IllegalArgumentException("The view is not a child of CoordinatorLayout");
         }

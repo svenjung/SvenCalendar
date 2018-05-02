@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.sven.sjcalendar.NoScrollViewPager
+    <com.sven.sjcalendar.widget.NoScrollViewPager
         android:id="@+id/weekPager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

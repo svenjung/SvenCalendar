@@ -10,12 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="20dp" />
 
-    <com.sven.sjcalendar.NoScrollViewPager
+    <com.sven.sjcalendar.widget.NoScrollViewPager
         android:id="@+id/monthView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.sven.sjcalendar.NoScrollViewPager
+    <com.sven.sjcalendar.widget.NoScrollViewPager
         android:id="@+id/weekView"
         android:layout_width="match_parent"
         android:layout_height="@dimen/week_row_height" />

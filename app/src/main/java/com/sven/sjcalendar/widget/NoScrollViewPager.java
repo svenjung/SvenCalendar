@@ -1,4 +1,4 @@
-package com.sven.sjcalendar;
+package com.sven.sjcalendar.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -7,7 +7,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 
-import com.sven.sjcalendar.widget.NoDurationScroller;
+import com.sven.sjcalendar.Reflect;
 
 /**
  * Created by Sven.J on 18-4-4.
@@ -63,13 +63,13 @@ public class NoScrollViewPager extends ViewPager {
 
     @Override
     public void setCurrentItem(int item, boolean smoothScroll) {
-        if (Math.abs(getCurrentItem() - item) > 7) {
+        if (!smoothScroll || Math.abs(getCurrentItem() - item) > 7) {
             scroller.setNoDuration(true);
             super.setCurrentItem(item, smoothScroll);
             scroller.setNoDuration(false);
         } else {
             scroller.setNoDuration(false);
-            super.setCurrentItem(item, smoothScroll);
+            super.setCurrentItem(item, true);
         }
     }
 }
