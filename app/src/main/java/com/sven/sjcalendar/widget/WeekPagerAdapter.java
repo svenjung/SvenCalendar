@@ -77,6 +77,7 @@ public class WeekPagerAdapter extends AbsDatePagerAdapter<SimpleWeekView> {
 
         view.setWeekParams(drawingParams);
         view.setOnDayClickListener(mOnDayClickListener);
+        view.setDatePickerController(mController);
     }
 
     @Override

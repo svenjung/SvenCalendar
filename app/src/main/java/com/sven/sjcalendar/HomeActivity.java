@@ -7,6 +7,7 @@ import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,6 +47,8 @@ public class HomeActivity extends AppCompatActivity {
     private MonthPagerAdapter mMonthPagerAdapter;
     private WeekPagerAdapter mWeekPagerAdapter;
 
+    private BottomSheetBehavior mBottomSheetBehavior;
+
     // 日期变更的类型
     private static final int DAY_CHANGE_FROM_WEEK = 1;
     private static final int DAY_CHANGE_FROM_MONTH = 2;
@@ -63,6 +66,7 @@ public class HomeActivity extends AppCompatActivity {
 
         mWeekStart = TimeCalendar.MONDAY;
         mSelectedDay = TimeCalendar.getInstance();
+        mSelectedDay.set(2037, 11,31);
 
         initView();
     }
@@ -82,6 +86,18 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (mBottomSheetBehavior != null &&
+                    mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private void initView() {
@@ -108,8 +124,8 @@ public class HomeActivity extends AppCompatActivity {
         mListPager.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                BottomSheetBehavior behavior = BottomSheetBehavior.from(mListPager);
-                behavior.addBottomSheetCallback(mStateCallback);
+                mBottomSheetBehavior = BottomSheetBehavior.from(mListPager);
+                mBottomSheetBehavior.addBottomSheetCallback(mStateCallback);
                 mListPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
             }
         });

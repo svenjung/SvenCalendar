@@ -617,67 +617,8 @@ public abstract class WeekView extends View {
     }
 
     protected boolean isOutOfRange(int julianDay) {
-        TimeCalendar calendar = TimeCalendar.getInstance();
-        calendar.setJulianDay(julianDay);
-
-        return isOutOfRange(calendar.getYear(), calendar.getMonth(), calendar.getJulianDay());
-    }
-
-    /**
-     * @return true if the specified year/month/day are within the range set by minDate and maxDate.
-     * If one or either have not been set, they are considered as Integer.MIN_VALUE and
-     * Integer.MAX_VALUE.
-     */
-    protected boolean isOutOfRange(int year, int month, int day) {
-        return isBeforeMin(year, month, day) || isAfterMax(year, month, day);
-    }
-
-    private boolean isBeforeMin(int year, int month, int day) {
-        if (mController == null) {
-            return false;
-        }
-        Calendar minDate = mController.getMinDate();
-        if (minDate == null) {
-            return false;
-        }
-
-        if (year < minDate.get(Calendar.YEAR)) {
-            return true;
-        } else if (year > minDate.get(Calendar.YEAR)) {
-            return false;
-        }
-
-        if (month < minDate.get(Calendar.MONTH)) {
-            return true;
-        } else if (month > minDate.get(Calendar.MONTH)) {
-            return false;
-        }
-
-        return day < minDate.get(Calendar.DAY_OF_MONTH);
-    }
-
-    private boolean isAfterMax(int year, int month, int day) {
-        if (mController == null) {
-            return false;
-        }
-        Calendar maxDate = mController.getMaxDate();
-        if (maxDate == null) {
-            return false;
-        }
-
-        if (year > maxDate.get(Calendar.YEAR)) {
-            return true;
-        } else if (year < maxDate.get(Calendar.YEAR)) {
-            return false;
-        }
-
-        if (month > maxDate.get(Calendar.MONTH)) {
-            return true;
-        } else if (month < maxDate.get(Calendar.MONTH)) {
-            return false;
-        }
-
-        return day > maxDate.get(Calendar.DAY_OF_MONTH);
+        return julianDay < mController.getMinDate().getJulianDay() ||
+                julianDay > mController.getMaxDate().getJulianDay();
     }
 
     /**

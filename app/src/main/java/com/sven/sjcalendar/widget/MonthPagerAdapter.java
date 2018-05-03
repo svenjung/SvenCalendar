@@ -81,6 +81,7 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView> {
 
         view.setMonthParams(drawingParams);
         view.setOnDayClickListener(mOnDayClickListener);
+        view.setDatePickerController(mController);
     }
 
     @Override
