@@ -446,7 +446,7 @@ public abstract class MonthView extends View {
             mWeekStart = mCalendar.getFirstDayOfWeek();
         }
 
-        mNumCells = getDaysInMonth(mMonth, mYear);
+        mNumCells = getDaysInMonth(mYear, mMonth);
         for (int i = 0; i < mNumCells; i++) {
             final int day = i + 1;
             if (sameDay(day, today)) {

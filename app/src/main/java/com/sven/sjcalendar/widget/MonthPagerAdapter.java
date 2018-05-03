@@ -3,6 +3,7 @@ package com.sven.sjcalendar.widget;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.sven.dateview.TimeCalendar;
 import com.sven.dateview.date.DatePickerController;
@@ -90,6 +91,19 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView> {
     @Override
     protected boolean forceNotifyDataSetChanged(Object object) {
         return object instanceof SimpleMonthView;
+    }
+
+    // TODO 把这部分代码移至CalendarBehavior的onPageSelected回调中
+    @Override
+    public void setPrimaryItem(ViewGroup container, int position, Object object) {
+        SimpleMonthView monthView = (SimpleMonthView) object;
+        ViewGroup.LayoutParams lp = container.getLayoutParams();
+        if (lp != null && lp.height != monthView.getMonthHeight()) {
+            lp.height = monthView.getMonthHeight();
+            container.setLayoutParams(lp);
+        }
+
+        super.setPrimaryItem(container, position, object);
     }
 
     private boolean isSelectedDayInMonth(int year, int month) {

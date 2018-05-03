@@ -12,6 +12,8 @@ import com.sven.dateview.TimeCalendar;
 
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * 列表适配器
  * Created by SouthernBox on 2018/1/18.
@@ -46,7 +48,15 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.TextHolder> {
             time.allDay = true;
             item = time.format2445() + " ++ " + item;
         }
+        final String message = item;
         holder.textView.setText(item);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Timber.i(" onItemClick, message = %s", message);
+            }
+        });
     }
 
     @Override

@@ -8,6 +8,11 @@ import android.view.View;
 
 public class ViewUtils {
 
+    /**
+     *  Offset this view's vertical location to the specified top
+     * @param view target view
+     * @param targetTop target new top
+     */
     public static void offsetTopAndBottom(@NonNull View view, int targetTop) {
         int currentTop = view.getTop();
         int offsetY = targetTop - currentTop;
@@ -16,7 +21,4 @@ public class ViewUtils {
         }
     }
 
-    public static String getViewClass(@NonNull View view) {
-        return view.getClass().getSimpleName();
-    }
 }

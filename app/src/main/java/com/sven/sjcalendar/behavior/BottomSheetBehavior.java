@@ -46,6 +46,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 
 /**
  * 日历首页底部View滑动的behavior,参考 {@link android.support.design.widget.BottomSheetBehavior}
@@ -265,8 +267,13 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
         setChildCanScrollHorizontally();
 
-        addBottomSheetCallback(mCalendarCallback);
-
+        // 重新设置child的paddingBottom以解决RecyclerView显示不全的问题
+        child.setPadding(
+                child.getPaddingTop(),
+                child.getPaddingStart(),
+                child.getPaddingEnd(),
+                mMinOffset
+        );
         return true;
     }
 
@@ -872,6 +879,7 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
             }
 
             View view = ViewPagerUtils.getCurrentView(viewPager);
+            Timber.i(" calendar callback , currentView = " + view);
             if (view == null || !(view instanceof SimpleMonthView)) {
                 return;
             }

@@ -2,7 +2,8 @@ package com.sven.sjcalendar;
 
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
-import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -15,6 +16,8 @@ import com.sven.dateview.TimeCalendar;
 import com.sven.dateview.date.DatePickerController;
 import com.sven.dateview.date.MonthView;
 import com.sven.dateview.date.OnDayClickListener;
+import com.sven.dateview.date.SimpleMonthView;
+import com.sven.dateview.date.SimpleWeekView;
 import com.sven.dateview.date.WeekView;
 import com.sven.sjcalendar.behavior.BottomSheetBehavior;
 import com.sven.sjcalendar.behavior.BottomSheetBehavior.BottomSheetCallback;
@@ -112,9 +115,11 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        mListPager.addOnPageChangeListener(mListPageChangeListener);
-
         onDayChanged(DAY_CHANGE_FROM_TIME);
+
+        mListPager.addOnPageChangeListener(mListPageChangeListener);
+        mMonthPager.addOnPageChangeListener(mMonthChangeListener);
+        mWeekPager.addOnPageChangeListener(mWeekChangeListener);
     }
 
     private void updateTitle() {
@@ -138,7 +143,7 @@ public class HomeActivity extends AppCompatActivity {
     // FIXME Month和Week中点击选中日期时,会触发两次onDayChanged
     // 第二次为ListViewPager的切换触发
     private void onDayChanged(@DayChangeType int type) {
-        Timber.i("             onDayChanged, type = %d", type);
+        Timber.i("             onDayChanged, type = %d, selected day = %s", type, mSelectedDay.format2445());
         updateTitle();
 
         if (type != DAY_CHANGE_FROM_MONTH) {
@@ -222,12 +227,40 @@ public class HomeActivity extends AppCompatActivity {
         }
     };
 
-    private ViewPager.OnPageChangeListener mListPageChangeListener = new ViewPager.SimpleOnPageChangeListener() {
+    private OnPageChangeListener mListPageChangeListener = new SimpleOnPageChangeListener() {
         @Override
         public void onPageSelected(int position) {
             int selectedDay = position + TimeCalendar.EPOCH_JULIAN_DAY;
-            mSelectedDay.setJulianDay(selectedDay);
-            onDayChanged(DAY_CHANGE_FROM_DAY);
+            //mSelectedDay.setJulianDay(selectedDay);
+            //onDayChanged(DAY_CHANGE_FROM_DAY);
+        }
+    };
+
+    private OnPageChangeListener mMonthChangeListener = new SimpleOnPageChangeListener() {
+        @Override
+        public void onPageSelected(int position) {
+            SimpleMonthView monthView = mMonthPagerAdapter.getItem(mMonthPager.getCurrentItem());
+            int year = monthView.getYear();
+            int month = monthView.getMonth();
+            int day = monthView.getSelectedDay();
+
+            Timber.i("    current selected day = %d/%d/%d", year, (month + 1), day);
+
+            mSelectedDay = new TimeCalendar(year, month, day);
+
+            onDayChanged(DAY_CHANGE_FROM_MONTH);
+        }
+    };
+
+    private OnPageChangeListener mWeekChangeListener = new SimpleOnPageChangeListener() {
+        @Override
+        public void onPageSelected(int position) {
+            Timber.i("          week view pager selected changed");
+            SimpleWeekView weekView = mWeekPagerAdapter.getItem(mWeekPager.getCurrentItem());
+            int julianDay = weekView.getSelectedDay();
+            //mSelectedDay.setJulianDay(julianDay);
+
+            //onDayChanged(DAY_CHANGE_FROM_WEEK);
         }
     };
 }

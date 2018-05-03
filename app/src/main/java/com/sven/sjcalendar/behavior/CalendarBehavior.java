@@ -13,8 +13,11 @@ import com.sven.dateview.date.MonthView;
 import com.sven.dateview.date.SimpleMonthView;
 import com.sven.sjcalendar.R;
 import com.sven.sjcalendar.widget.MonthPagerAdapter;
+import com.sven.sjcalendar.widget.NoScrollViewPager;
 
 import java.lang.ref.WeakReference;
+
+import timber.log.Timber;
 
 import static com.sven.sjcalendar.behavior.ViewUtils.offsetTopAndBottom;
 
@@ -91,9 +94,9 @@ public class CalendarBehavior<V extends View> extends CoordinatorLayout.Behavior
     @Override
     public int getExpandedHeight() {
         // 左右滑动过程中，要获取ViewPager的高度
-        SimpleMonthView monthView = getCurrentMonth();
-        if (monthView != null) {
-            return monthView.getMonthHeight();
+        V child = mViewRef.get();
+        if (child != null) {
+            return child.getMeasuredHeight();
         } else {
             return 0;
         }
@@ -137,10 +140,6 @@ public class CalendarBehavior<V extends View> extends CoordinatorLayout.Behavior
         // 滑动过程中, position指向左边的item
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            if (positionOffset == 0.0) {
-                return;
-            }
-
             if (mViewRef == null || mViewRef.get() == null) {
                 return;
             }
@@ -203,11 +202,32 @@ public class CalendarBehavior<V extends View> extends CoordinatorLayout.Behavior
     @Override
     public void onStateChanged(@NonNull View bottomSheet, int newState) {
         mState = newState;
+
+        if (mViewRef == null || mViewRef.get() == null) {
+            Timber.i("onStateChanged, get ref view failed!");
+            return;
+        }
+
+        NoScrollViewPager viewPager = (NoScrollViewPager) mViewRef.get();
+        viewPager.setScrollEnable(newState == BottomSheetBehavior.STATE_COLLAPSED);
     }
 
     @Override
     public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+        // 移动MonthView所在ViewPager
+        SimpleMonthView monthView = getCurrentMonth();
+        if (monthView == null) {
+            Timber.e("onSlide, get current month failed!");
+            return;
+        }
 
+        int headerMinHeight = getLayoutTop(false);
+        int headerMaxHeight = getLayoutTop(true);
+        int selectedRow = monthView.getSelectedRow();
+        int rowHeight = monthView.getRowHeight();
+        int maxOffset = rowHeight * (selectedRow - 1) + headerMaxHeight - headerMinHeight;
+        int newTop = (int) (-slideOffset * maxOffset) + headerMaxHeight;
+        offsetTopAndBottom(mViewRef.get(), newTop);
     }
 
     @Override

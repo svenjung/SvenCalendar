@@ -92,10 +92,10 @@ public abstract class AbsDatePagerAdapter<V extends View> extends PagerAdapter
     }
 
     // This method will call after ViewPager.setAdapter
+    // TODO 直接使用构造函数传入ViewPager
     @Override
     public void onAdapterChanged(@NonNull ViewPager viewPager, @Nullable PagerAdapter oldAdapter,
                                  @Nullable PagerAdapter newAdapter) {
-        Timber.i("       onAdapterChanged %s", viewPager);
         mTargetViewPager = viewPager;
     }
 
