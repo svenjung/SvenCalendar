@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -65,6 +66,12 @@ public class HeaderBehavior<V extends View> extends CoordinatorLayout.Behavior<V
         ensureChild(child);
         mViewRef = new WeakReference<>(child);
         return false;
+    }
+
+    @Override
+    public boolean onTouchEvent(CoordinatorLayout parent, V child, MotionEvent ev) {
+        // 消耗touch事件 -> 屏蔽Header上touch会触发BottomSheetBehavior的scroll
+        return true;
     }
 
     private void ensureChild(V child) {
