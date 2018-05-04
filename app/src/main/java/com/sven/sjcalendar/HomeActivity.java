@@ -267,8 +267,10 @@ public class HomeActivity extends AppCompatActivity {
         public void onStateChanged(@NonNull View bottomSheet, int newState) {
             if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                 mWeekPager.setVisibility(View.VISIBLE);
+                mMonthPager.setVisibility(View.INVISIBLE);
             } else {
                 mWeekPager.setVisibility(View.INVISIBLE);
+                mMonthPager.setVisibility(View.VISIBLE);
             }
         }
     };
