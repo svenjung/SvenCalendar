@@ -55,12 +55,12 @@ public class WeekPagerAdapter extends AbsDatePagerAdapter<SimpleWeekView> {
     }
 
     @Override
-    SimpleWeekView createView(Context context) {
+    public SimpleWeekView createView(Context context) {
         return new SimpleWeekView(context);
     }
 
     @Override
-    void bindView(@NonNull SimpleWeekView view, int position) {
+    public void bindView(@NonNull SimpleWeekView view, int position) {
         Context context = view.getContext();
         HashMap<String, Integer> drawingParams = new HashMap<>();
         int rowHeight = context.getResources().getDimensionPixelOffset(R.dimen.week_row_height);

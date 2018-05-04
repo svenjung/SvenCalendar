@@ -55,12 +55,12 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView> {
     }
 
     @Override
-    SimpleMonthView createView(Context context) {
+    public SimpleMonthView createView(Context context) {
         return new SimpleMonthView(context);
     }
 
     @Override
-    void bindView(@NonNull SimpleMonthView view, int position) {
+    public void bindView(@NonNull SimpleMonthView view, int position) {
         Context context = view.getContext();
         HashMap<String, Integer> drawingParams = new HashMap<>();
         int month = position % MONTHS_IN_YEAR;

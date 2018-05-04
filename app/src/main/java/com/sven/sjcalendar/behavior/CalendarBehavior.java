@@ -179,6 +179,9 @@ public class CalendarBehavior<V extends View> extends CoordinatorLayout.Behavior
                 return;
             }
 
+            // 这里实时更新ViewPager高度是左右滑动时,让底部的EventViewPager跟着上下滑动
+            // 可以换一个实现方式,固定Month高度,左右滑动时,使用offsetTopAndBottom来
+            // 移动底部列表
             ViewGroup.LayoutParams lp = child.getLayoutParams();
             lp.height = currentMonth.getMeasuredHeight() - offsetY;
             child.setLayoutParams(lp);

@@ -99,8 +99,8 @@ public abstract class AbsDatePagerAdapter<V extends View> extends PagerAdapter
         mTargetViewPager = viewPager;
     }
 
-    abstract V createView(Context context);
+    public abstract V createView(Context context);
 
-    abstract void bindView(@NonNull V view, int position);
+    public abstract void bindView(@NonNull V view, int position);
 
 }

@@ -7,6 +7,7 @@ import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Choreographer;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -66,7 +67,6 @@ public class HomeActivity extends AppCompatActivity {
 
         mWeekStart = TimeCalendar.MONDAY;
         mSelectedDay = TimeCalendar.getInstance();
-        mSelectedDay.set(2037, 11,31);
 
         initView();
     }
@@ -132,9 +132,13 @@ public class HomeActivity extends AppCompatActivity {
 
         onDayChanged(DAY_CHANGE_FROM_TIME);
 
-        mListPager.addOnPageChangeListener(mListPageChangeListener);
-        mMonthPager.addOnPageChangeListener(mMonthChangeListener);
-        mWeekPager.addOnPageChangeListener(mWeekChangeListener);
+        mMonthPager.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                //Timber.i("@@@@@@ MonthPager onLayout @@@@@@@@");
+            }
+        });
     }
 
     private void updateTitle() {
@@ -155,30 +159,57 @@ public class HomeActivity extends AppCompatActivity {
         return selectedWeek - minWeek;
     }
 
-    // FIXME Month和Week中点击选中日期时,会触发两次onDayChanged
-    // 第二次为ListViewPager的切换触发
+    // MonthViewPager的onPageSelected会触发两次？？ WTF
     private void onDayChanged(@DayChangeType int type) {
         Timber.i("             onDayChanged, type = %d, selected day = %s", type, mSelectedDay.format2445());
         updateTitle();
 
-        if (type != DAY_CHANGE_FROM_MONTH) {
-            // refresh month
-            mMonthPager.setCurrentItem(getMonthPosition(mSelectedDay));
-            mMonthPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
+        mMonthPager.removeOnPageChangeListener(mMonthChangeListener);
+        mWeekPager.removeOnPageChangeListener(mWeekChangeListener);
+        mListPager.removeOnPageChangeListener(mListPageChangeListener);
+
+        switch (type) {
+            case DAY_CHANGE_FROM_TIME:
+                Timber.i("@@@ Refresh : Month,  Week,  List");
+                // refresh month
+                mMonthPager.setCurrentItem(getMonthPosition(mSelectedDay));
+                mMonthPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
+                // refresh week
+                mWeekPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
+                mWeekPager.setCurrentItem(getWeekPosition(mSelectedDay));
+                // 点击选中日期时,底部ViewPager切换页面不做动画
+                mListPager.setCurrentItem(mSelectedDay.getDaysSinceEpoch(), false);
+                break;
+            case DAY_CHANGE_FROM_DAY:
+                Timber.i("@@@ Refresh : Month,  Week");
+                // refresh month
+                mMonthPager.setCurrentItem(getMonthPosition(mSelectedDay));
+                mMonthPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
+                // refresh week
+                mWeekPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
+                mWeekPager.setCurrentItem(getWeekPosition(mSelectedDay));
+                break;
+            case DAY_CHANGE_FROM_MONTH:
+                Timber.i("@@@ Refresh : Week,  List");
+                // refresh week
+                mWeekPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
+                mWeekPager.setCurrentItem(getWeekPosition(mSelectedDay));
+                // 点击选中日期时,底部ViewPager切换页面不做动画
+                mListPager.setCurrentItem(mSelectedDay.getDaysSinceEpoch(), false);
+                break;
+            case DAY_CHANGE_FROM_WEEK:
+                Timber.i("@@@ Refresh : Month,  List");
+                // refresh month
+                mMonthPager.setCurrentItem(getMonthPosition(mSelectedDay));
+                mMonthPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
+                // 点击选中日期时,底部ViewPager切换页面不做动画
+                mListPager.setCurrentItem(mSelectedDay.getDaysSinceEpoch(), false);
+                break;
         }
 
-        if (type != DAY_CHANGE_FROM_WEEK) {
-            // refresh week
-            mWeekPager.setCurrentItem(getWeekPosition(mSelectedDay));
-
-            mWeekPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
-        }
-
-        if (type != DAY_CHANGE_FROM_DAY) {
-            // 点击选中日期时,底部ViewPager切换页面不做动画
-            mListPager.setCurrentItem(mSelectedDay.getDaysSinceEpoch(), false);
-        }
-
+        mListPager.addOnPageChangeListener(mListPageChangeListener);
+        mMonthPager.addOnPageChangeListener(mMonthChangeListener);
+        mWeekPager.addOnPageChangeListener(mWeekChangeListener);
     }
 
     private OnDayClickListener mDayClickListener = new OnDayClickListener() {
@@ -246,8 +277,10 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onPageSelected(int position) {
             int selectedDay = position + TimeCalendar.EPOCH_JULIAN_DAY;
-            //mSelectedDay.setJulianDay(selectedDay);
-            //onDayChanged(DAY_CHANGE_FROM_DAY);
+            mSelectedDay.setJulianDay(selectedDay);
+
+            Timber.i("     List selected, current day = %s", mSelectedDay.format2445());
+            onDayChanged(DAY_CHANGE_FROM_DAY);
         }
     };
 
@@ -255,13 +288,16 @@ public class HomeActivity extends AppCompatActivity {
         @Override
         public void onPageSelected(int position) {
             SimpleMonthView monthView = mMonthPagerAdapter.getItem(mMonthPager.getCurrentItem());
+            if (monthView == null) {
+                return;
+            }
             int year = monthView.getYear();
             int month = monthView.getMonth();
             int day = monthView.getSelectedDay();
 
-            Timber.i("    current selected day = %d/%d/%d", year, (month + 1), day);
-
             mSelectedDay = new TimeCalendar(year, month, day);
+
+            Timber.i("     Month selected, current day = %s", mSelectedDay.format2445());
 
             onDayChanged(DAY_CHANGE_FROM_MONTH);
         }
@@ -270,12 +306,17 @@ public class HomeActivity extends AppCompatActivity {
     private OnPageChangeListener mWeekChangeListener = new SimpleOnPageChangeListener() {
         @Override
         public void onPageSelected(int position) {
-            Timber.i("          week view pager selected changed");
             SimpleWeekView weekView = mWeekPagerAdapter.getItem(mWeekPager.getCurrentItem());
+            if (weekView == null) {
+                return;
+            }
             int julianDay = weekView.getSelectedDay();
-            //mSelectedDay.setJulianDay(julianDay);
+            mSelectedDay.setJulianDay(julianDay);
 
-            //onDayChanged(DAY_CHANGE_FROM_WEEK);
+            Timber.i("     Week selected, current day = %s", mSelectedDay.format2445());
+
+            onDayChanged(DAY_CHANGE_FROM_WEEK);
         }
     };
+
 }
