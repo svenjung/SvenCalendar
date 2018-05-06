@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import com.sven.dateview.date.DatePickerController;
 import com.sven.dateview.date.OnDayClickListener;
+import com.sven.sjcalendar.Reflect;
 
 import java.util.LinkedList;
 
@@ -54,7 +55,10 @@ public abstract class AbsDatePagerAdapter<V extends View> extends PagerAdapter
 
         bindView(view, position);
 
-        container.addView(view);
+        //container.addView(view);
+
+        Reflect.on(container).call("addViewInLayout", view, -1, view.getLayoutParams(), true);
+
         mCachedViews.put(position, view);
 
         return view;

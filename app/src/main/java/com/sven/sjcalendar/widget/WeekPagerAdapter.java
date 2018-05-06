@@ -2,6 +2,7 @@ package com.sven.sjcalendar.widget;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.view.ViewGroup;
 
 import com.sven.dateview.TimeCalendar;
 import com.sven.dateview.date.DatePickerController;
@@ -78,6 +79,10 @@ public class WeekPagerAdapter extends AbsDatePagerAdapter<SimpleWeekView> {
         view.setWeekParams(drawingParams);
         view.setOnDayClickListener(mOnDayClickListener);
         view.setDatePickerController(mController);
+
+        ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                rowHeight);
+        view.setLayoutParams(lp);
     }
 
     @Override
