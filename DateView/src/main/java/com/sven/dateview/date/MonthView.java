@@ -135,8 +135,7 @@ public abstract class MonthView extends View {
     // The number of days + a spot for week number if it is displayed
     protected int mNumCells = mNumDays;
 
-    private final Calendar mCalendar;
-    protected final Calendar mDayLabelCalendar;
+    private final TimeCalendar mCalendar;
     private final MonthViewTouchHelper mTouchHelper;
 
     protected int mNumRows = DEFAULT_NUM_ROWS;
@@ -181,8 +180,7 @@ public abstract class MonthView extends View {
         super(context, attr);
         Resources res = context.getResources();
 
-        mDayLabelCalendar = Calendar.getInstance();
-        mCalendar = Calendar.getInstance();
+        mCalendar = TimeCalendar.getInstance();
 
         mDayTextColor = res.getColor(R.color.black);
         mTodayNumberColor = res.getColor(R.color.white);

@@ -1,13 +1,15 @@
 package com.sven.sjcalendar;
 
+import android.arch.lifecycle.Observer;
+import android.content.Intent;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Choreographer;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,12 +20,14 @@ import com.sven.dateview.TimeCalendar;
 import com.sven.dateview.date.DatePickerController;
 import com.sven.dateview.date.MonthView;
 import com.sven.dateview.date.OnDayClickListener;
+import com.sven.dateview.date.OnDayLongClickListener;
 import com.sven.dateview.date.SimpleMonthView;
 import com.sven.dateview.date.SimpleWeekView;
 import com.sven.dateview.date.WeekView;
 import com.sven.sjcalendar.behavior.BottomSheetBehavior;
 import com.sven.sjcalendar.behavior.BottomSheetBehavior.BottomSheetCallback;
 import com.sven.sjcalendar.behavior.BottomSheetBehavior.SimpleBottomSheetCallback;
+import com.sven.sjcalendar.event.EventDayLiveData;
 import com.sven.sjcalendar.widget.MonthPagerAdapter;
 import com.sven.sjcalendar.widget.NoScrollViewPager;
 import com.sven.sjcalendar.widget.WeekPagerAdapter;
@@ -31,6 +35,7 @@ import com.sven.sjcalendar.widget.WeekTitleBar;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -49,6 +54,8 @@ public class HomeActivity extends AppCompatActivity {
     private WeekPagerAdapter mWeekPagerAdapter;
 
     private BottomSheetBehavior mBottomSheetBehavior;
+
+    private EventDayLiveData mEventDayLiveData;
 
     // 日期变更的类型
     private static final int DAY_CHANGE_FROM_WEEK = 1;
@@ -69,6 +76,41 @@ public class HomeActivity extends AppCompatActivity {
         mSelectedDay = TimeCalendar.getInstance();
 
         initView();
+
+        Timber.i("           onCreate");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Timber.i("           onStart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Timber.i("           onResume");
+        mEventDayLiveData = new EventDayLiveData(this);
+        mEventDayLiveData.observe(this, mMonthPagerAdapter);
+    }
+
+    @Override
+    protected void onPause() {
+        mEventDayLiveData.removeObserver(mMonthPagerAdapter);
+        super.onPause();
+        Timber.i("           onPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Timber.i("           onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Timber.i("           onDestroy");
     }
 
     @Override
@@ -111,7 +153,7 @@ public class HomeActivity extends AppCompatActivity {
         mWeekTitleBar = findViewById(R.id.headerWeekTitle);
         mWeekTitleBar.setFirstDayOfWeek(mWeekStart);
 
-        mMonthPagerAdapter = new MonthPagerAdapter(mController, mDayClickListener);
+        mMonthPagerAdapter = new MonthPagerAdapter(mController, mDayClickListener, mDayLongClickListener);
         mMonthPager.addOnAdapterChangeListener(mMonthPagerAdapter);
         mMonthPager.setAdapter(mMonthPagerAdapter);
 
@@ -227,6 +269,21 @@ public class HomeActivity extends AppCompatActivity {
             } else if (view instanceof WeekView) {
                 onDayChanged(DAY_CHANGE_FROM_WEEK);
             }
+        }
+    };
+
+    private OnDayLongClickListener mDayLongClickListener = new OnDayLongClickListener() {
+        @Override
+        public boolean onDayLongClick(View view, int year, int month, int day) {
+            TimeCalendar time = TimeCalendar.getInstance();
+            time.set(year, month, day);
+            Intent intent = new Intent("com.android.calendar.QUICK_EVENT_INSERT");
+            intent.putExtra("eventBeginTime", time.getTimeInMillis());
+            intent.putExtra("title", "SjCalendar create event");
+            intent.setType("vnd.android.cursor.item/event");
+
+            startActivity(intent);
+            return true;
         }
     };
 

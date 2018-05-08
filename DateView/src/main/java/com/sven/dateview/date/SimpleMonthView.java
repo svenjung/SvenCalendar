@@ -19,10 +19,15 @@ package com.sven.dateview.date;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
+
+import com.sven.dateview.TimeCalendar;
 
 import java.util.Locale;
 
 public class SimpleMonthView extends MonthView {
+    private EventIndicator mIndicator;
+    private TimeCalendar mTime;
 
     public SimpleMonthView(Context context) {
         this(context, null);
@@ -30,6 +35,12 @@ public class SimpleMonthView extends MonthView {
 
     public SimpleMonthView(Context context, AttributeSet attr) {
         super(context, attr);
+
+        mTime = TimeCalendar.getInstance();
+    }
+
+    public void setEventInficator(EventIndicator indicator) {
+        mIndicator = indicator;
     }
 
     @Override
@@ -58,6 +69,13 @@ public class SimpleMonthView extends MonthView {
             mMonthNumPaint.setColor(mTodayNumberColor);
         } else {
             mMonthNumPaint.setColor(mDayTextColor);
+        }
+
+        if (mIndicator != null) {
+            mTime.set(year, month, day);
+            boolean hasEvent = mIndicator.hasEvents(mTime.getJulianDay());
+            if (hasEvent)
+            Log.e("MonthView", "day : " + year + "/" + (month + 1) + "/" + day + " hasEvent = " + hasEvent);
         }
 
         canvas.drawText(String.format(Locale.getDefault(), "%d", day), x, y, mMonthNumPaint);

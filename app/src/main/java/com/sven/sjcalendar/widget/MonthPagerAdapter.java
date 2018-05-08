@@ -1,33 +1,48 @@
 package com.sven.sjcalendar.widget;
 
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.view.ViewPagerUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.sven.dateview.TimeCalendar;
 import com.sven.dateview.date.DatePickerController;
+import com.sven.dateview.date.EventIndicator;
 import com.sven.dateview.date.OnDayClickListener;
+import com.sven.dateview.date.OnDayLongClickListener;
 import com.sven.dateview.date.SimpleMonthView;
 import com.sven.sjcalendar.R;
 
 import java.util.HashMap;
+import java.util.List;
 
 import timber.log.Timber;
 
 /**
  * Created by Sven.J on 18-5-2.
  */
-public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView> {
+public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView>
+        implements Observer<List<Integer>>, EventIndicator {
     private static final int MONTHS_IN_YEAR = 12;
 
     private TimeCalendar mSelectedDay;
+
+    private OnDayLongClickListener mOnDayLongClickListener;
 
     public MonthPagerAdapter(DatePickerController controller, OnDayClickListener listener) {
         super(controller, listener);
 
         mSelectedDay = new TimeCalendar(controller.getSelectedDay().getYear(), controller.getSelectedDay().getMonth(),
                 controller.getSelectedDay().getDay());
+    }
+
+    public MonthPagerAdapter(DatePickerController controller, OnDayClickListener listener,
+                             OnDayLongClickListener longClickListener) {
+        this(controller, listener);
+        mOnDayLongClickListener = longClickListener;
     }
 
     public void setSelectedDay(int julianDay) {
@@ -81,7 +96,9 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView> {
 
         view.setMonthParams(drawingParams);
         view.setOnDayClickListener(mOnDayClickListener);
+        view.setOnDayLongClickListener(mOnDayLongClickListener);
         view.setDatePickerController(mController);
+        view.setEventInficator(this);
 
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 view.getMonthHeight());
@@ -114,4 +131,21 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView> {
     private boolean isSelectedDayInMonth(int year, int month) {
         return mSelectedDay.getYear() == year && mSelectedDay.getMonth() == month;
     }
+
+    private List<Integer> mEventDays = null;
+
+    @Override
+    public void onChanged(@Nullable List<Integer> list) {
+        mEventDays = list;
+
+        SimpleMonthView current = (SimpleMonthView) ViewPagerUtils.getCurrentView(mTargetViewPager);
+        if (current != null)
+            current.invalidate();
+    }
+
+    @Override
+    public boolean hasEvents(int julianDay) {
+        return mEventDays != null && mEventDays.contains(julianDay);
+    }
+
 }
