@@ -1,10 +1,8 @@
 package com.sven.sjcalendar;
 
-import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.support.v4.view.ViewPager.SimpleOnPageChangeListener;
 import android.support.v7.app.AppCompatActivity;
@@ -35,7 +33,6 @@ import com.sven.sjcalendar.widget.WeekTitleBar;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.List;
 
 import timber.log.Timber;
 
@@ -65,7 +62,8 @@ public class HomeActivity extends AppCompatActivity {
 
     @IntDef({DAY_CHANGE_FROM_WEEK, DAY_CHANGE_FROM_MONTH, DAY_CHANGE_FROM_DAY, DAY_CHANGE_FROM_TIME})
     @Retention(RetentionPolicy.SOURCE)
-    private @interface DayChangeType {}
+    private @interface DayChangeType {
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +90,7 @@ public class HomeActivity extends AppCompatActivity {
         Timber.i("           onResume");
         mEventDayLiveData = new EventDayLiveData(this);
         mEventDayLiveData.observe(this, mMonthPagerAdapter);
+        mEventDayLiveData.observe(this, mWeekPagerAdapter);
     }
 
     @Override

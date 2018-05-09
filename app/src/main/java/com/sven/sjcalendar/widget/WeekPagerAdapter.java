@@ -1,21 +1,27 @@
 package com.sven.sjcalendar.widget;
 
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.view.ViewPagerUtils;
 import android.view.ViewGroup;
 
 import com.sven.dateview.TimeCalendar;
 import com.sven.dateview.date.DatePickerController;
+import com.sven.dateview.date.EventIndicator;
 import com.sven.dateview.date.OnDayClickListener;
 import com.sven.dateview.date.SimpleWeekView;
 import com.sven.sjcalendar.R;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by Sven.J on 18-5-2.
  */
-public class WeekPagerAdapter extends AbsDatePagerAdapter<SimpleWeekView> {
+public class WeekPagerAdapter extends AbsDatePagerAdapter<SimpleWeekView>
+        implements Observer<List<Integer>>, EventIndicator {
 
     private int mSelectedDay;
 
@@ -79,6 +85,7 @@ public class WeekPagerAdapter extends AbsDatePagerAdapter<SimpleWeekView> {
         view.setWeekParams(drawingParams);
         view.setOnDayClickListener(mOnDayClickListener);
         view.setDatePickerController(mController);
+        view.setEventIndicator(this);
 
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 rowHeight);
@@ -92,5 +99,22 @@ public class WeekPagerAdapter extends AbsDatePagerAdapter<SimpleWeekView> {
 
     private boolean isSelectedDayInWeek(int currentWeek) {
         return TimeCalendar.getWeeksSinceEpochJulianDay(mSelectedDay, mWeekStart) == currentWeek;
+    }
+
+    private List<Integer> mEventDays = null;
+
+    @Override
+    public void onChanged(@Nullable List<Integer> list) {
+        mEventDays = list;
+
+        SimpleWeekView current = (SimpleWeekView) ViewPagerUtils.getCurrentView(mTargetViewPager);
+        if (current != null) {
+            current.invalidate();
+        }
+    }
+
+    @Override
+    public boolean hasEvents(int julianDay) {
+        return mEventDays != null && mEventDays.contains(julianDay);
     }
 }

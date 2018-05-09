@@ -18,8 +18,8 @@ package com.sven.dateview.date;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import com.sven.dateview.TimeCalendar;
 
@@ -29,6 +29,9 @@ public class SimpleMonthView extends MonthView {
     private EventIndicator mIndicator;
     private TimeCalendar mTime;
 
+    private Paint mEventIndicatorPaint;
+    private int mEventIndicatorColor;
+
     public SimpleMonthView(Context context) {
         this(context, null);
     }
@@ -37,15 +40,23 @@ public class SimpleMonthView extends MonthView {
         super(context, attr);
 
         mTime = TimeCalendar.getInstance();
+
+        mEventIndicatorColor = 0xFF696969;
+        mEventIndicatorPaint = new Paint();
+        mEventIndicatorPaint.setFakeBoldText(true);
+        mEventIndicatorPaint.setAntiAlias(true);
+        mEventIndicatorPaint.setColor(mEventIndicatorColor);
+        mEventIndicatorPaint.setTextAlign(Paint.Align.CENTER);
+        mEventIndicatorPaint.setStyle(Paint.Style.FILL);
     }
 
-    public void setEventInficator(EventIndicator indicator) {
+    public void setEventIndicator(EventIndicator indicator) {
         mIndicator = indicator;
     }
 
     @Override
     public void drawMonthDay(Canvas canvas, int year, int month, int day,
-            int x, int y, int startX, int stopX, int startY, int stopY) {
+                             int x, int y, int startX, int stopX, int startY, int stopY) {
         boolean drawCircle = false;
         if (day == mPressedDay || day == mSelectedDay) {
             mSelectedCirclePaint.setColor(mSelectedCircleColor);
@@ -58,7 +69,7 @@ public class SimpleMonthView extends MonthView {
 
         if (drawCircle) {
             mSelectedCirclePaint.setAlpha(180);
-            canvas.drawCircle(x , y - (MINI_DAY_NUMBER_TEXT_SIZE / 3), DAY_SELECTED_CIRCLE_SIZE,
+            canvas.drawCircle(x, y - (MINI_DAY_NUMBER_TEXT_SIZE / 3), DAY_SELECTED_CIRCLE_SIZE,
                     mSelectedCirclePaint);
         }
 
@@ -73,9 +84,9 @@ public class SimpleMonthView extends MonthView {
 
         if (mIndicator != null) {
             mTime.set(year, month, day);
-            boolean hasEvent = mIndicator.hasEvents(mTime.getJulianDay());
-            if (hasEvent)
-            Log.e("MonthView", "day : " + year + "/" + (month + 1) + "/" + day + " hasEvent = " + hasEvent);
+            if (mIndicator.hasEvents(mTime.getJulianDay())) {
+                canvas.drawCircle(x, y + MINI_DAY_NUMBER_TEXT_SIZE, 8, mEventIndicatorPaint);
+            }
         }
 
         canvas.drawText(String.format(Locale.getDefault(), "%d", day), x, y, mMonthNumPaint);

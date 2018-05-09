@@ -30,6 +30,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.schedulers.Schedulers;
 import timber.log.Timber;
@@ -137,7 +138,7 @@ public class EventDayLiveData extends MutableLiveData<List<Integer>> {
         final Disposable disposable = Observable.create(
                 new ObservableOnSubscribe<List<Integer>>() {
                     @Override
-                    public void subscribe(ObservableEmitter<List<Integer>> emitter) throws Exception {
+                    public void subscribe(ObservableEmitter<List<Integer>> emitter) {
                         if (emitter.isDisposed()) {
                             return;
                         }
@@ -150,16 +151,23 @@ public class EventDayLiveData extends MutableLiveData<List<Integer>> {
                         }
                     }
                 })
+                .filter(new Predicate<List<Integer>>() {
+                    @Override
+                    public boolean test(List<Integer> list) {
+                        // 判断数据是否变化
+                        return eventDaysChanged(getValue(), list);
+                    }
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<Integer>>() {
                     @Override
-                    public void accept(List<Integer> list) throws Exception {
+                    public void accept(List<Integer> list) {
                         setValue(list);
                     }
                 }, new Consumer<Throwable>() {
                     @Override
-                    public void accept(Throwable throwable) throws Exception {
+                    public void accept(Throwable throwable) {
                         Timber.i(throwable,"Query event day failed");
                     }
                 });
@@ -181,7 +189,17 @@ public class EventDayLiveData extends MutableLiveData<List<Integer>> {
             while (!c.isAfterLast()) {
                 int startDay = c.getInt(INDEX_START_DAY);
                 int endDay = c.getInt(INDEX_END_DAY);
-                dayList.add(startDay);
+                if (endDay != startDay) {
+                    for (int i = startDay; i <= endDay; i++) {
+                        if (!dayList.contains(i)) {
+                            dayList.add(i);
+                        }
+                    }
+                } else {
+                    if (!dayList.contains(startDay)) {
+                        dayList.add(startDay);
+                    }
+                }
                 c.moveToNext();
             }
         }
@@ -191,5 +209,17 @@ public class EventDayLiveData extends MutableLiveData<List<Integer>> {
         }
 
         return dayList;
+    }
+
+    private boolean eventDaysChanged(List<Integer> oldList, List<Integer> newList) {
+        if (oldList == null) {
+            return true;
+        }
+
+        if (oldList.size() != newList.size()) {
+            return true;
+        }
+
+        return !oldList.containsAll(newList);
     }
 }

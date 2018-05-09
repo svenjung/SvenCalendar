@@ -5,7 +5,6 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPagerUtils;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.sven.dateview.TimeCalendar;
@@ -18,8 +17,6 @@ import com.sven.sjcalendar.R;
 
 import java.util.HashMap;
 import java.util.List;
-
-import timber.log.Timber;
 
 /**
  * Created by Sven.J on 18-5-2.
@@ -98,7 +95,7 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView>
         view.setOnDayClickListener(mOnDayClickListener);
         view.setOnDayLongClickListener(mOnDayLongClickListener);
         view.setDatePickerController(mController);
-        view.setEventInficator(this);
+        view.setEventIndicator(this);
 
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 view.getMonthHeight());

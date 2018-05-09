@@ -13,7 +13,7 @@
         <item name="windowNoTitle">true</item>
         <item name="android:windowTranslucentNavigation">false</item>
         <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowBackground">@null</item>
+        <item name="android:windowBackground">@drawable/window_background</item>
         <item name="actionOverflowMenuStyle">@style/OverflowMenuStyle</item>
     </style>
 
