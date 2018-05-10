@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPagerUtils;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.sven.dateview.TimeCalendar;
@@ -100,6 +101,18 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView>
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 view.getMonthHeight());
         view.setLayoutParams(lp);
+
+        view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+
+            }
+        });
     }
 
     @Override

@@ -20,16 +20,13 @@ import timber.log.Timber;
 /**
  * Created by Sven.J on 18-5-2.
  */
-public abstract class AbsDatePagerAdapter<V extends View> extends PagerAdapter
+public abstract class AbsDatePagerAdapter<V extends View> extends RecycledPagerAdapter<V>
         implements ViewPager.OnAdapterChangeListener {
 
     protected final DatePickerController mController;
     protected final OnDayClickListener mOnDayClickListener;
 
     protected int mWeekStart;
-
-    private final SparseArray<V> mCachedViews;
-    private final LinkedList<V> mRecycledViews;
 
     protected ViewPager mTargetViewPager = null;
 
@@ -38,38 +35,6 @@ public abstract class AbsDatePagerAdapter<V extends View> extends PagerAdapter
         mOnDayClickListener = listener;
 
         mWeekStart = controller.getFirstDayOfWeek();
-
-        mCachedViews = new SparseArray<>();
-        mRecycledViews = new LinkedList<>();
-    }
-
-    @Override
-    public Object instantiateItem(ViewGroup container, int position) {
-        Context context = container.getContext();
-        V view;
-        if (mRecycledViews.size() > 0) {
-            view = mRecycledViews.removeFirst();
-        } else {
-            view = createView(context);
-        }
-
-        bindView(view, position);
-
-        //container.addView(view);
-
-        Reflect.on(container).call("addViewInLayout", view, -1, view.getLayoutParams(), true);
-
-        mCachedViews.put(position, view);
-
-        return view;
-    }
-
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        V view = (V) object;
-        container.removeView(view);
-        mCachedViews.remove(position);
-        mRecycledViews.add(view);
     }
 
     @Override
@@ -91,9 +56,6 @@ public abstract class AbsDatePagerAdapter<V extends View> extends PagerAdapter
         return view == object;
     }
 
-    public V getItem(int position) {
-        return mCachedViews.get(position);
-    }
 
     // This method will call after ViewPager.setAdapter
     // TODO 直接使用构造函数传入ViewPager
@@ -102,9 +64,5 @@ public abstract class AbsDatePagerAdapter<V extends View> extends PagerAdapter
                                  @Nullable PagerAdapter newAdapter) {
         mTargetViewPager = viewPager;
     }
-
-    public abstract V createView(Context context);
-
-    public abstract void bindView(@NonNull V view, int position);
 
 }

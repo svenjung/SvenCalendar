@@ -20,6 +20,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
 
 import com.sven.dateview.TimeCalendar;
 
@@ -48,6 +50,18 @@ public class SimpleMonthView extends MonthView {
         mEventIndicatorPaint.setColor(mEventIndicatorColor);
         mEventIndicatorPaint.setTextAlign(Paint.Align.CENTER);
         mEventIndicatorPaint.setStyle(Paint.Style.FILL);
+
+        addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
+            @Override
+            public void onViewAttachedToWindow(View v) {
+                Log.e("MonthView", "    onViewAttachedToWindow,  " + mYear + "/" + (mMonth + 1) + "   " + this);
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+                Log.e("MonthView", "    onViewDetachedFromWindow,  " + mYear + "/" + (mMonth + 1) + "   " + this);
+            }
+        });
     }
 
     public void setEventIndicator(EventIndicator indicator) {
@@ -57,6 +71,7 @@ public class SimpleMonthView extends MonthView {
     @Override
     public void drawMonthDay(Canvas canvas, int year, int month, int day,
                              int x, int y, int startX, int stopX, int startY, int stopY) {
+        Log.e("MonthView", "      drawMonthDay, " + mYear + "/" + (mMonth + 1));
         boolean drawCircle = false;
         if (day == mPressedDay || day == mSelectedDay) {
             mSelectedCirclePaint.setColor(mSelectedCircleColor);

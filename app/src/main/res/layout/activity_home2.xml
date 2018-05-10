@@ -43,7 +43,8 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/header_expanded_height"
             android:scaleType="fitXY"
-            android:src="@drawable/spring" />
+            android:src="@drawable/spring"
+            android:visibility="gone"/>
 
         <com.sven.sjcalendar.widget.WeekTitleBar
             android:id="@+id/headerWeekTitle"

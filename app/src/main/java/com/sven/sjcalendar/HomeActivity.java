@@ -1,6 +1,7 @@
 package com.sven.sjcalendar;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -26,6 +27,7 @@ import com.sven.sjcalendar.behavior.BottomSheetBehavior;
 import com.sven.sjcalendar.behavior.BottomSheetBehavior.BottomSheetCallback;
 import com.sven.sjcalendar.behavior.BottomSheetBehavior.SimpleBottomSheetCallback;
 import com.sven.sjcalendar.event.EventDayLiveData;
+import com.sven.sjcalendar.hotspots.HotspotsPagerAdapter;
 import com.sven.sjcalendar.widget.MonthPagerAdapter;
 import com.sven.sjcalendar.widget.NoScrollViewPager;
 import com.sven.sjcalendar.widget.WeekPagerAdapter;
@@ -68,6 +70,8 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 设置窗口背景为透明, 降低绘制层级
+        getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
         setContentView(R.layout.activity_home2);
 
         mWeekStart = TimeCalendar.MONDAY;
@@ -160,26 +164,19 @@ public class HomeActivity extends AppCompatActivity {
         mWeekPager.addOnAdapterChangeListener(mWeekPagerAdapter);
         mWeekPager.setAdapter(mWeekPagerAdapter);
 
-        mListPager.setAdapter(new ListPagerAdapter());
+        mListPager.setAdapter(new HotspotsPagerAdapter());
 
-        mListPager.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                mBottomSheetBehavior = BottomSheetBehavior.from(mListPager);
-                mBottomSheetBehavior.addBottomSheetCallback(mStateCallback);
-                mListPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            }
-        });
+        mListPager.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        mBottomSheetBehavior = BottomSheetBehavior.from(mListPager);
+                        mBottomSheetBehavior.addBottomSheetCallback(mStateCallback);
+                        mListPager.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                });
 
         onDayChanged(DAY_CHANGE_FROM_TIME);
-
-        mMonthPager.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-            @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                //Timber.i("@@@@@@ MonthPager onLayout @@@@@@@@");
-            }
-        });
     }
 
     private void updateTitle() {

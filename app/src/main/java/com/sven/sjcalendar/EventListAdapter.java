@@ -5,11 +5,13 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
 
 import com.sven.dateview.TimeCalendar;
 import com.sven.dateview.date.DatePickerController;
 import com.sven.dateview.date.OnDayClickListener;
 import com.sven.sjcalendar.widget.AbsDatePagerAdapter;
+import com.sven.sjcalendar.widget.RecycledPagerAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,12 +20,10 @@ import java.util.List;
 /**
  * Created by Sven.J on 18-5-3.
  */
-public class EventListAdapter extends AbsDatePagerAdapter<RecyclerView> {
+public class EventListAdapter extends RecycledPagerAdapter<RecyclerView> {
     private int mDayCount;
 
-    public EventListAdapter(DatePickerController controller, OnDayClickListener listener) {
-        super(controller, listener);
-
+    public EventListAdapter() {
         TimeCalendar min = new TimeCalendar(1970, 0, 1);
         TimeCalendar max = new TimeCalendar(2037, 11, 31);
 
