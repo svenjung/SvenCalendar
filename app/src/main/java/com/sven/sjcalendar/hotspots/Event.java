@@ -6,6 +6,12 @@ import android.support.annotation.NonNull;
  * Created by Sven.J on 18-5-9.
  */
 public class Event implements Comparable<Event> {
+    // 事件的跨天属性
+    public static int MULTI_NONE = -1;
+    public static int MULTI_START = 0;
+    public static int MULTI_END = 1;
+    public static int MULTI_MIDDLE = 2;
+
     public long id;
     public String title;
     public String description;
@@ -18,6 +24,8 @@ public class Event implements Comparable<Event> {
 
     public int startDay;
     public int endDay;
+
+    public int multiType;
 
     @Override
     public int compareTo(@NonNull Event o) {

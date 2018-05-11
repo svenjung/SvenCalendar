@@ -9,7 +9,6 @@ import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.provider.CalendarContract.Instances;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -38,10 +37,9 @@ public class EventLoader {
             + Instances.END_MINUTE + " ASC";
     private static final String SORT_ALLDAY_BY =
             "startDay ASC, endDay ASC, title ASC";
-    private static final String DISPLAY_AS_ALLDAY = "dispAllday";
 
-    private static final String EVENTS_WHERE = DISPLAY_AS_ALLDAY + "=0";
-    private static final String ALLDAY_WHERE = DISPLAY_AS_ALLDAY + "=1";
+    private static final String EVENTS_WHERE = Instances.ALL_DAY + "=0";
+    private static final String ALLDAY_WHERE = Instances.ALL_DAY + "=1";
 
     private static final String EVENT_WHERE_BY_ID = Events._ID + "=?";
 
@@ -60,8 +58,6 @@ public class EventLoader {
             Instances.SELF_ATTENDEE_STATUS,  // 10
             Events.DESCRIPTION,              // 11
             Events.CALENDAR_ID,              // 12
-            Instances.ALL_DAY + "=1 OR (" + Instances.END + "-" + Instances.BEGIN + ")>="
-                    + DateUtils.DAY_IN_MILLIS + " AS " + DISPLAY_AS_ALLDAY, // 13
     };
 
     // The indices for the projection array above.
@@ -113,8 +109,8 @@ public class EventLoader {
         return events;
     }
 
-    private static Cursor instancesQuery(ContentResolver cr, String[] projection,
-                                               int startDay, int endDay, String selection, String[] selectionArgs, String orderBy) {
+    private static Cursor instancesQuery(ContentResolver cr, String[] projection, int startDay,
+                                         int endDay, String selection, String[] selectionArgs, String orderBy) {
         String WHERE_CALENDARS_SELECTED = Calendars.VISIBLE + "=?";
         String[] WHERE_CALENDARS_ARGS = {"1"};
         String DEFAULT_SORT_ORDER = "begin ASC";
@@ -168,6 +164,19 @@ public class EventLoader {
             if (e.startDay > endDay || e.endDay < startDay) {
                 continue;
             }
+            // 增加判断事件的跨天属性
+            if (e.startDay != e.endDay) {
+                if (e.startDay == startDay) {
+                    e.multiType = Event.MULTI_START;
+                } else if (e.endDay == endDay) {
+                    e.multiType = Event.MULTI_END;
+                } else {
+                    e.multiType = Event.MULTI_MIDDLE;
+                }
+            } else {
+                e.multiType = Event.MULTI_NONE;
+            }
+
             events.add(e);
         }
 
@@ -187,7 +196,7 @@ public class EventLoader {
         e.allDay = cEvents.getInt(PROJECTION_ALL_DAY_INDEX) != 0;
         e.description = cEvents.getString(PROJECTION_DESCRIPTION);
 
-        if (e.title == null || e.title.length() == 0) {
+        if (e.title == null || e.title.trim().length() == 0) {
             e.title = "(无标题)";
         }
 

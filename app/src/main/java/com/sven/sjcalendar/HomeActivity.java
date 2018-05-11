@@ -165,6 +165,7 @@ public class HomeActivity extends AppCompatActivity {
         mWeekPager.setAdapter(mWeekPagerAdapter);
 
         mListPager.setAdapter(new HotspotsPagerAdapter());
+        //mListPager.setAdapter(new ListPagerAdapter());
 
         mListPager.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
