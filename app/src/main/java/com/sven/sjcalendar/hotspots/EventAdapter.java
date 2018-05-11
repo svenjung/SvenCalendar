@@ -2,6 +2,7 @@ package com.sven.sjcalendar.hotspots;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import com.alibaba.android.vlayout.DelegateAdapter;
 import com.alibaba.android.vlayout.LayoutHelper;
 import com.alibaba.android.vlayout.layout.LinearLayoutHelper;
 import com.sven.sjcalendar.R;
+import com.sven.sjcalendar.Utils;
 
 import java.util.List;
 
@@ -64,6 +66,8 @@ public class EventAdapter extends DelegateAdapter.Adapter<EventAdapter.EventView
 
         public void bindView(Event event) {
             title.setText(event.title);
+            int flags = DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME;
+            time.setText(Utils.formatDateRange(time.getContext(), event.startMillis, event.endMillis, flags));
         }
     }
 }
