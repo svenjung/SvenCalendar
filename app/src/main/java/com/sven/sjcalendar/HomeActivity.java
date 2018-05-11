@@ -211,8 +211,8 @@ public class HomeActivity extends AppCompatActivity {
             case DAY_CHANGE_FROM_TIME:
                 Timber.i("@@@ Refresh : Month,  Week,  List");
                 // refresh month
-                mMonthPager.setCurrentItem(getMonthPosition(mSelectedDay));
                 mMonthPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
+                mMonthPager.setCurrentItem(getMonthPosition(mSelectedDay));
                 // refresh week
                 mWeekPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
                 mWeekPager.setCurrentItem(getWeekPosition(mSelectedDay));
@@ -230,6 +230,7 @@ public class HomeActivity extends AppCompatActivity {
                 break;
             case DAY_CHANGE_FROM_MONTH:
                 Timber.i("@@@ Refresh : Week,  List");
+                mMonthPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay(), false);
                 // refresh week
                 mWeekPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
                 mWeekPager.setCurrentItem(getWeekPosition(mSelectedDay));
@@ -352,9 +353,6 @@ public class HomeActivity extends AppCompatActivity {
             int day = monthView.getSelectedDay();
 
             mSelectedDay = new TimeCalendar(year, month, day);
-
-            Timber.i("     Month selected, current day = %s", mSelectedDay.format2445());
-
             onDayChanged(DAY_CHANGE_FROM_MONTH);
         }
     };
@@ -368,8 +366,6 @@ public class HomeActivity extends AppCompatActivity {
             }
             int julianDay = weekView.getSelectedDay();
             mSelectedDay.setJulianDay(julianDay);
-
-            Timber.i("     Week selected, current day = %s", mSelectedDay.format2445());
 
             onDayChanged(DAY_CHANGE_FROM_WEEK);
         }

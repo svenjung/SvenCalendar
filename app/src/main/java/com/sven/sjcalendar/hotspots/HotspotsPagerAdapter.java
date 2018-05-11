@@ -35,6 +35,7 @@ public class HotspotsPagerAdapter extends RecycledPagerAdapter<RecyclerView> {
     @Override
     public void bindView(@NonNull RecyclerView view, int position) {
         Context context = view.getContext();
+        view.setOverScrollMode(RecyclerView.OVER_SCROLL_NEVER);
         VirtualLayoutManagerEx layoutManager = new VirtualLayoutManagerEx(context);
         DelegateAdapter adapter = new DelegateAdapter(layoutManager, true);
         layoutManager.setAdapterManager(new HotspotsAdapterManager(context, adapter,mMinDay + position));

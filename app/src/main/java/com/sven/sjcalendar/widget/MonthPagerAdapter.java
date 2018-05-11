@@ -19,6 +19,8 @@ import com.sven.sjcalendar.R;
 import java.util.HashMap;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * Created by Sven.J on 18-5-2.
  */
@@ -43,7 +45,7 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView>
         mOnDayLongClickListener = longClickListener;
     }
 
-    public void setSelectedDay(int julianDay) {
+    public void setSelectedDay(int julianDay, boolean invalidate) {
         TimeCalendar time = TimeCalendar.getInstance();
         time.setJulianDay(julianDay);
         if (mSelectedDay.sameDay(time)) {
@@ -51,8 +53,7 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView>
         }
 
         mSelectedDay.setJulianDay(julianDay);
-
-        if (mTargetViewPager != null) {
+        if (invalidate && mTargetViewPager != null) {
             int childCount = mTargetViewPager.getChildCount();
             int yearOfMonth, monthOfMonth;
             for (int i = 0; i < childCount; i++) {
@@ -65,6 +66,10 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView>
                 }
             }
         }
+    }
+
+    public void setSelectedDay(int julianDay) {
+        setSelectedDay(julianDay, true);
     }
 
     @Override
@@ -101,18 +106,6 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView>
         ViewGroup.LayoutParams lp = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 view.getMonthHeight());
         view.setLayoutParams(lp);
-
-        view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-            @Override
-            public void onViewAttachedToWindow(View v) {
-
-            }
-
-            @Override
-            public void onViewDetachedFromWindow(View v) {
-
-            }
-        });
     }
 
     @Override

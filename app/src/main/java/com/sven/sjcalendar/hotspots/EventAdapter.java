@@ -50,7 +50,7 @@ public class EventAdapter extends DelegateAdapter.Adapter<EventAdapter.EventView
     public static class EventViewHolder extends RecyclerView.ViewHolder {
 
         public static EventViewHolder create(Context context, ViewGroup container) {
-            View view = LayoutInflater.from(context).inflate(R.layout.hotspots_event, container, false);
+            View view = LayoutInflater.from(context).inflate(R.layout.hotspots_item_event, container, false);
             return new EventViewHolder(view);
         }
 

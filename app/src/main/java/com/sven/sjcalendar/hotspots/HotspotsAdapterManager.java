@@ -40,9 +40,13 @@ public class HotspotsAdapterManager {
                 .subscribe(new Consumer<AdapterInfo>() {
                     @Override
                     public void accept(AdapterInfo info) throws Exception {
-                        mDelegateAdapter.addAdapter(info.mOrder, info.mAdapter);
+                        if (info.mAdapter.getItemCount() > 0) {
+                            // 增加卡片头部空出部分
+                            mDelegateAdapter.addAdapter(new NopAdapter());
+                            mDelegateAdapter.addAdapter(info.mAdapter);
 
-                        mDelegateAdapter.notifyDataSetChanged();
+                            mDelegateAdapter.notifyDataSetChanged();
+                        }
                     }
                 });
     }
