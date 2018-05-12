@@ -84,9 +84,20 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView>
         int month = position % MONTHS_IN_YEAR;
         int year = position / MONTHS_IN_YEAR + mController.getMinYear();
 
-        int selectedDay = 1;
+        int selectedDay = -1;
         if (isSelectedDayInMonth(year, month)) {
             selectedDay = mSelectedDay.getDay();
+        }
+
+        if (selectedDay == -1) {
+            TimeCalendar today = TimeCalendar.getInstance();
+            if (year == today.getYear() && month == today.getMonth()) {
+                selectedDay = today.getDay();
+            }
+        }
+
+        if (selectedDay == -1) {
+            selectedDay = 1;
         }
 
         int rowHeight = context.getResources().getDimensionPixelOffset(R.dimen.week_row_height);
@@ -122,6 +133,10 @@ public class MonthPagerAdapter extends AbsDatePagerAdapter<SimpleMonthView>
     @Override
     public void setPrimaryItem(ViewGroup container, int position, Object object) {
         SimpleMonthView monthView = (SimpleMonthView) object;
+        if (!isSelectedDayInMonth(monthView.getYear(), monthView.getMonth())) {
+            monthView.setSelectedDay(1);
+        }
+
         ViewGroup.LayoutParams lp = container.getLayoutParams();
         if (lp != null && lp.height != monthView.getMonthHeight()) {
             lp.height = monthView.getMonthHeight();

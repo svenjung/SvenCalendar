@@ -239,6 +239,7 @@ public class HomeActivity extends AppCompatActivity {
                 break;
             case DAY_CHANGE_FROM_WEEK:
                 Timber.i("@@@ Refresh : Month,  List");
+                mWeekPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay(), false);
                 // refresh month
                 mMonthPager.setCurrentItem(getMonthPosition(mSelectedDay));
                 mMonthPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());

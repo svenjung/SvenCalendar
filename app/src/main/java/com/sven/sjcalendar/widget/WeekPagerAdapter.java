@@ -17,6 +17,8 @@ import com.sven.sjcalendar.R;
 import java.util.HashMap;
 import java.util.List;
 
+import timber.log.Timber;
+
 /**
  * Created by Sven.J on 18-5-2.
  */
@@ -40,15 +42,17 @@ public class WeekPagerAdapter extends AbsDatePagerAdapter<SimpleWeekView>
     }
 
     public void setSelectedDay(int day) {
+        setSelectedDay(day, true);
+    }
+
+    public void setSelectedDay(int day, boolean invalidate) {
         if (mSelectedDay == day) {
             return;
         }
 
         mSelectedDay = day;
-
-        int targetWeek = TimeCalendar.getWeeksSinceEpochJulianDay(mSelectedDay, mWeekStart);
-
-        if (mTargetViewPager != null) {
+        if (invalidate && mTargetViewPager != null) {
+            int targetWeek = TimeCalendar.getWeeksSinceEpochJulianDay(mSelectedDay, mWeekStart);
             int childCount = mTargetViewPager.getChildCount();
             int weekNum;
             for (int i = 0; i < childCount; i++) {
@@ -77,6 +81,15 @@ public class WeekPagerAdapter extends AbsDatePagerAdapter<SimpleWeekView>
             selectedDay = mSelectedDay;
         }
 
+        if (selectedDay == -1) {
+            TimeCalendar today = TimeCalendar.getInstance();
+            int todayJulianDay = today.getJulianDay();
+            int todayWeekNum = TimeCalendar.getWeeksSinceEpochJulianDay(todayJulianDay, mWeekStart);
+            if (isSelectedDayInWeek(todayWeekNum)) {
+                selectedDay = todayJulianDay;
+            }
+        }
+
         drawingParams.put(SimpleWeekView.VIEW_PARAMS_WEEK_SINCE_EPOCH, weeksSinceEpoch);
         drawingParams.put(SimpleWeekView.VIEW_PARAMS_HEIGHT, rowHeight);
         drawingParams.put(SimpleWeekView.VIEW_PARAMS_SELECTED_DAY, selectedDay);
@@ -95,6 +108,11 @@ public class WeekPagerAdapter extends AbsDatePagerAdapter<SimpleWeekView>
     @Override
     public int getCount() {
         return mMaxWeekNum - mMinWeekNum + 1;
+    }
+
+    @Override
+    protected boolean forceNotifyDataSetChanged(Object object) {
+        return object instanceof SimpleWeekView;
     }
 
     private boolean isSelectedDayInWeek(int currentWeek) {
