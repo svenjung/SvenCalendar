@@ -32,6 +32,10 @@ public class HotspotsAdapterManager {
         mTargetDay = day;
     }
 
+    /**
+     * 1.先获取首页卡片配置信息
+     * 2.再加载具体卡片
+     */
     public void startLoadAdapter() {
         EventsLoader loader = new EventsLoader(mContext, mTargetDay);
         mPreLoader = loader.getAdapterInfo()

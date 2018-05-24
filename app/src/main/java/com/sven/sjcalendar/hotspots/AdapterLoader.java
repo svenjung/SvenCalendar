@@ -7,6 +7,5 @@ import io.reactivex.Observable;
  * Created by Sven.J on 18-5-10.
  */
 public interface AdapterLoader {
-
     Observable<AdapterInfo> getAdapterInfo();
 }
