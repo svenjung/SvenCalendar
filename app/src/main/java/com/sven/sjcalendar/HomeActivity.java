@@ -67,6 +67,8 @@ public class HomeActivity extends AppCompatActivity {
     private @interface DayChangeType {
     }
 
+    private int mState = BottomSheetBehavior.STATE_COLLAPSED;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -215,7 +217,8 @@ public class HomeActivity extends AppCompatActivity {
                 mMonthPager.setCurrentItem(getMonthPosition(mSelectedDay));
                 // refresh week
                 mWeekPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
-                mWeekPager.setCurrentItem(getWeekPosition(mSelectedDay));
+                mWeekPager.setCurrentItem(getWeekPosition(mSelectedDay),
+                        mState == BottomSheetBehavior.STATE_EXPANDED);
                 // 点击选中日期时,底部ViewPager切换页面不做动画
                 mListPager.setCurrentItem(mSelectedDay.getDaysSinceEpoch(), false);
                 break;
@@ -233,9 +236,9 @@ public class HomeActivity extends AppCompatActivity {
                 mMonthPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay(), false);
                 // refresh week
                 mWeekPagerAdapter.setSelectedDay(mSelectedDay.getJulianDay());
-                mWeekPager.setCurrentItem(getWeekPosition(mSelectedDay));
+                mWeekPager.setCurrentItem(getWeekPosition(mSelectedDay), false);
                 // 点击选中日期时,底部ViewPager切换页面不做动画
-                mListPager.setCurrentItem(mSelectedDay.getDaysSinceEpoch(), false);
+                mListPager.setCurrentItem(mSelectedDay.getDaysSinceEpoch(), true);
                 break;
             case DAY_CHANGE_FROM_WEEK:
                 Timber.i("@@@ Refresh : Month,  List");
@@ -328,6 +331,8 @@ public class HomeActivity extends AppCompatActivity {
                 mWeekPager.setVisibility(View.INVISIBLE);
                 mMonthPager.setVisibility(View.VISIBLE);
             }
+
+            mState = newState;
         }
     };
 
