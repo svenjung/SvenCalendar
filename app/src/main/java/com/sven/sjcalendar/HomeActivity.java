@@ -102,6 +102,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         mEventDayLiveData.removeObserver(mMonthPagerAdapter);
+        mEventDayLiveData.removeObserver(mWeekPagerAdapter);
         super.onPause();
         Timber.i("           onPause");
     }

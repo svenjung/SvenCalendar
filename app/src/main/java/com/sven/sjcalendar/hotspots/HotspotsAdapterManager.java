@@ -49,6 +49,7 @@ public class HotspotsAdapterManager {
             @Override
             public void accept(AdapterInfo info) throws Exception {
                 if (info != null) {
+                    mDelegateAdapter.addAdapter(new NopAdapter());
                     mDelegateAdapter.addAdapter(info.mAdapter);
                     mDelegateAdapter.notifyDataSetChanged();
                 }
@@ -72,6 +73,10 @@ public class HotspotsAdapterManager {
 
     private AdapterLoader createAlmanacLoader() {
         return new AlmanacAdapterLoader();
+    }
+
+    private AdapterLoader createZodiacLoader() {
+        return null;
     }
 
     private Observable getHotspotsAdapters() {

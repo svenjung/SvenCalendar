@@ -28,7 +28,6 @@ public class SchedulerAdapterLoader implements AdapterLoader {
             public void subscribe(ObservableEmitter<AdapterInfo> emitter) throws Exception {
                 AdapterInfo info = new AdapterInfo();
                 info.mOrder = 0;
-
                 info.mAdapter = new SchedulerAdapter(EventLoader.loadEvents(context, day));
 
                 emitter.onNext(info);
