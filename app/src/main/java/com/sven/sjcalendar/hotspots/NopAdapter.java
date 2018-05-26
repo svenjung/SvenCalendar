@@ -1,6 +1,5 @@
 package com.sven.sjcalendar.hotspots;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,15 +35,15 @@ public class NopAdapter extends DelegateAdapter.Adapter<NopAdapter.NopViewHolder
         return 1;
     }
 
-    public static class NopViewHolder extends RecyclerView.ViewHolder {
+    static class NopViewHolder extends RecyclerView.ViewHolder {
 
-        public static NopViewHolder create(ViewGroup parent) {
+        static NopViewHolder create(ViewGroup parent) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.hotspots_item_nop, parent, false);
             return new NopViewHolder(view);
         }
 
-        public NopViewHolder(View itemView) {
+        NopViewHolder(View itemView) {
             super(itemView);
         }
     }

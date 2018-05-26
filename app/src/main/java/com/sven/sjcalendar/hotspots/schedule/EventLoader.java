@@ -1,4 +1,4 @@
-package com.sven.sjcalendar.hotspots;
+package com.sven.sjcalendar.hotspots.schedule;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;

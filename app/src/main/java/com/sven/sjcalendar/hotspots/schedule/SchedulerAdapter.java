@@ -1,4 +1,4 @@
-package com.sven.sjcalendar.hotspots;
+package com.sven.sjcalendar.hotspots.schedule;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -17,13 +17,14 @@ import com.sven.sjcalendar.Utils;
 import java.util.List;
 
 /**
+ * Adapter for scheduler card
  * Created by Sven.J on 18-5-9.
  */
-public class EventAdapter extends DelegateAdapter.Adapter<EventAdapter.EventViewHolder> {
+public class SchedulerAdapter extends DelegateAdapter.Adapter<SchedulerAdapter.EventViewHolder> {
 
     private List<Event> mEvents;
 
-    public EventAdapter(List<Event> events) {
+    public SchedulerAdapter(List<Event> events) {
         mEvents = events;
     }
 
@@ -47,9 +48,9 @@ public class EventAdapter extends DelegateAdapter.Adapter<EventAdapter.EventView
         return mEvents == null ? 0 : mEvents.size();
     }
 
-    public static class EventViewHolder extends RecyclerView.ViewHolder {
+    static class EventViewHolder extends RecyclerView.ViewHolder {
 
-        public static EventViewHolder create(Context context, ViewGroup container) {
+        static EventViewHolder create(Context context, ViewGroup container) {
             View view = LayoutInflater.from(context).inflate(R.layout.hotspots_item_event, container, false);
             return new EventViewHolder(view);
         }
@@ -57,14 +58,14 @@ public class EventAdapter extends DelegateAdapter.Adapter<EventAdapter.EventView
         private TextView title;
         private TextView time;
 
-        public EventViewHolder(View itemView) {
+        EventViewHolder(View itemView) {
             super(itemView);
 
             title = itemView.findViewById(R.id.title);
             time = itemView.findViewById(R.id.time);
         }
 
-        public void bindView(Event event) {
+        void bindView(Event event) {
             title.setText(event.title);
             int flags = DateUtils.FORMAT_ABBREV_ALL | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_SHOW_TIME;
             time.setText(Utils.formatDateRange(time.getContext(), event.startMillis, event.endMillis, flags));

@@ -3,6 +3,10 @@ package com.sven.sjcalendar.hotspots;
 import android.content.Context;
 
 import com.alibaba.android.vlayout.DelegateAdapter;
+import com.sven.sjcalendar.hotspots.almanac.AlmanacAdapterLoader;
+import com.sven.sjcalendar.hotspots.schedule.EventLoader;
+import com.sven.sjcalendar.hotspots.schedule.SchedulerAdapter;
+import com.sven.sjcalendar.hotspots.schedule.SchedulerAdapterLoader;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -37,22 +41,19 @@ public class HotspotsAdapterManager {
      * 2.再加载具体卡片
      */
     public void startLoadAdapter() {
-        EventsLoader loader = new EventsLoader(mContext, mTargetDay);
-        mPreLoader = loader.getAdapterInfo()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<AdapterInfo>() {
-                    @Override
-                    public void accept(AdapterInfo info) throws Exception {
-                        if (info.mAdapter.getItemCount() > 0) {
-                            // 增加卡片头部空出部分
-                            mDelegateAdapter.addAdapter(new NopAdapter());
-                            mDelegateAdapter.addAdapter(info.mAdapter);
-
-                            mDelegateAdapter.notifyDataSetChanged();
-                        }
-                    }
-                });
+        mPreLoader = Observable.merge(createEventLoader().getAdapterInfo(),
+                createAlmanacLoader().getAdapterInfo())
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Consumer<AdapterInfo>() {
+            @Override
+            public void accept(AdapterInfo info) throws Exception {
+                if (info != null) {
+                    mDelegateAdapter.addAdapter(info.mAdapter);
+                    mDelegateAdapter.notifyDataSetChanged();
+                }
+            }
+        });
     }
 
     public void stopLoadAdapter() {
@@ -65,31 +66,15 @@ public class HotspotsAdapterManager {
         }
     }
 
-    public static class EventsLoader implements AdapterLoader {
+    private AdapterLoader createEventLoader() {
+        return new SchedulerAdapterLoader(mContext, mTargetDay);
+    }
 
-        private Context context;
-        private int day;
+    private AdapterLoader createAlmanacLoader() {
+        return new AlmanacAdapterLoader();
+    }
 
-        public EventsLoader(Context context, int day) {
-            this.context = context;
-            this.day = day;
-        }
-
-        @Override
-        public Observable<AdapterInfo> getAdapterInfo() {
-            return Observable.create(new ObservableOnSubscribe<AdapterInfo>() {
-                @Override
-                public void subscribe(ObservableEmitter<AdapterInfo> emitter) throws Exception {
-                    AdapterInfo info = new AdapterInfo();
-                    info.mOrder = 0;
-
-                    info.mAdapter = new EventAdapter(EventLoader.loadEvents(context, day));
-
-                    emitter.onNext(info);
-                    emitter.onComplete();
-                }
-
-            });
-        }
+    private Observable getHotspotsAdapters() {
+        return null;
     }
 }
