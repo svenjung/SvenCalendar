@@ -51,7 +51,6 @@ public class HotspotsAdapterManager {
                 if (info != null) {
                     mDelegateAdapter.addAdapter(new NopAdapter());
                     mDelegateAdapter.addAdapter(info.mAdapter);
-                    mDelegateAdapter.notifyDataSetChanged();
                 }
             }
         });

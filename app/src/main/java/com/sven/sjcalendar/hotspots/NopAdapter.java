@@ -35,6 +35,11 @@ public class NopAdapter extends DelegateAdapter.Adapter<NopAdapter.NopViewHolder
         return 1;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return 0;
+    }
+
     static class NopViewHolder extends RecyclerView.ViewHolder {
 
         static NopViewHolder create(ViewGroup parent) {

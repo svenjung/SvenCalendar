@@ -1,6 +1,9 @@
 package com.sven.sjcalendar.hotspots.schedule;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -11,21 +14,65 @@ import android.widget.TextView;
 import com.alibaba.android.vlayout.DelegateAdapter;
 import com.alibaba.android.vlayout.LayoutHelper;
 import com.alibaba.android.vlayout.layout.LinearLayoutHelper;
+import com.sven.dateview.TimeCalendar;
 import com.sven.sjcalendar.R;
 import com.sven.sjcalendar.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * Adapter for scheduler card
  * Created by Sven.J on 18-5-9.
  */
+@SuppressWarnings("unchecked")
 public class SchedulerAdapter extends DelegateAdapter.Adapter<SchedulerAdapter.EventViewHolder> {
 
     private List<Event> mEvents;
 
     public SchedulerAdapter(List<Event> events) {
         mEvents = events;
+
+
+        final Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                mEvents = (List<Event>) msg.obj;
+                Timber.d("handle events changed...");
+                notifyDataSetChanged();
+                return true;
+            }
+        });
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(5000);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                ArrayList<Event> events = new ArrayList<>(mEvents);
+                TimeCalendar time = TimeCalendar.getInstance();
+
+                Event event = new Event();
+                event.title = "异步刷新增加的事件，，，，";
+                event.description = "异步刷新增加事件";
+                event.startMillis = time.getTimeInMillis();
+                event.endMillis = time.getTimeInMillis() + 3600 * 1000;
+                event.startDay = time.getJulianDay();
+                event.endDay = time.getJulianDay();
+
+                events.add(event);
+
+                Message message = handler.obtainMessage();
+                message.obj = events;
+                message.sendToTarget();
+            }
+        }.start();
     }
 
     @Override
@@ -44,8 +91,24 @@ public class SchedulerAdapter extends DelegateAdapter.Adapter<SchedulerAdapter.E
     }
 
     @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        Timber.d("onAttachedToRecyclerView");
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView);
+    }
+
+    @Override
     public int getItemCount() {
         return mEvents == null ? 0 : mEvents.size();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return 1;
     }
 
     static class EventViewHolder extends RecyclerView.ViewHolder {
