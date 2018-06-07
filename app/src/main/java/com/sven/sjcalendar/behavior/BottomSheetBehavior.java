@@ -153,9 +153,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
     private WeakReference<NoScrollViewPager> dependentView;
 
-    private int mHeaderExpandedHeight = 0;
-    private int mHeaderCollapsedHeight = 0;
-
     /**
      * Default constructor for instantiating BottomSheetBehaviors.
      */
@@ -232,9 +229,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
 
             addBottomSheetCallback(calendarBehavior);
         }
-
-        mHeaderExpandedHeight = toolBarMaxHeight;
-        mHeaderCollapsedHeight = toolBarMinHeight;
 
         mPeekHeight = parent.getHeight() - calendarMaxHeight - toolBarMaxHeight;
         mMaxOffset = calendarMaxHeight + toolBarMaxHeight;
@@ -861,40 +855,6 @@ public class BottomSheetBehavior<V extends View> extends CoordinatorLayout.Behav
                     }
                 };
     }
-
-    private BottomSheetCallback mCalendarCallback = new BottomSheetCallback() {
-        @Override
-        public void onStateChanged(@NonNull View bottomSheet, int newState) {
-            NoScrollViewPager viewPager = getDependentView();
-            if (viewPager == null) {
-                return;
-            }
-
-            viewPager.setScrollEnable(newState == STATE_COLLAPSED || newState == STATE_EXPANDED);
-        }
-
-        @Override
-        public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-            NoScrollViewPager viewPager = getDependentView();
-            if (viewPager == null) {
-                return;
-            }
-
-            View view = ViewPagerUtils.getCurrentView(viewPager);
-            Timber.i(" calendar callback , currentView = " + view);
-            if (view == null || !(view instanceof SimpleMonthView)) {
-                return;
-            }
-
-            SimpleMonthView monthView = (SimpleMonthView) view;
-            int selectedRow = monthView.getSelectedRow();
-            int rowHeight = monthView.getRowHeight();
-            int maxOffset = rowHeight * (selectedRow - 1) + mHeaderExpandedHeight - mHeaderCollapsedHeight;
-            int newTop = (int) (-slideOffset * maxOffset) + mHeaderExpandedHeight;
-
-            ViewUtils.offsetTopAndBottom(viewPager, newTop);
-        }
-    };
 
     public static class SimpleBottomSheetCallback implements BottomSheetCallback {
 

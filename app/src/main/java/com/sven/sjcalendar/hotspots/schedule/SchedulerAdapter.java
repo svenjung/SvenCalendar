@@ -46,34 +46,36 @@ public class SchedulerAdapter extends DelegateAdapter.Adapter<SchedulerAdapter.E
             }
         });
 
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(5000);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                ArrayList<Event> events = new ArrayList<>(mEvents);
-                TimeCalendar time = TimeCalendar.getInstance();
-
-                Event event = new Event();
-                event.title = "异步刷新增加的事件，，，，";
-                event.description = "异步刷新增加事件";
-                event.startMillis = time.getTimeInMillis();
-                event.endMillis = time.getTimeInMillis() + 3600 * 1000;
-                event.startDay = time.getJulianDay();
-                event.endDay = time.getJulianDay();
-
-                events.add(event);
-
-                Message message = handler.obtainMessage();
-                events.clear();
-                message.obj = events;
-                message.sendToTarget();
-            }
-        }.start();
+//        new Thread() {
+//            @Override
+//            public void run() {
+//                try {
+//                    Thread.sleep(5000);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//
+//                ArrayList<Event> events = new ArrayList<>(mEvents);
+//                TimeCalendar time = TimeCalendar.getInstance();
+//
+//                for (int i = 0; i < 15; i ++) {
+//                    Event event = new Event();
+//                    event.title = "异步刷新增加的事件, " + i;
+//                    event.description = "异步刷新增加事件";
+//                    event.startMillis = time.getTimeInMillis();
+//                    event.endMillis = time.getTimeInMillis() + 3600 * 1000;
+//                    event.startDay = time.getJulianDay();
+//                    event.endDay = time.getJulianDay();
+//
+//                    events.add(event);
+//                }
+//
+//                Message message = handler.obtainMessage();
+//                //events.clear();
+//                message.obj = events;
+//                message.sendToTarget();
+//            }
+//        }.start();
     }
 
     @Override
