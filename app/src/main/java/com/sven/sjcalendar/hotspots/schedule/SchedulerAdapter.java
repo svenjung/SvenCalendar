@@ -69,6 +69,7 @@ public class SchedulerAdapter extends DelegateAdapter.Adapter<SchedulerAdapter.E
                 events.add(event);
 
                 Message message = handler.obtainMessage();
+                events.clear();
                 message.obj = events;
                 message.sendToTarget();
             }
